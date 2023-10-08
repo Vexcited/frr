@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# TypeScript cache
+\*.tsbuildinfo
+
+# Optional eslint cache
+.eslintcache
+
+# Output of 'npm pack'
+\*.tgz
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
+.DS_Store
