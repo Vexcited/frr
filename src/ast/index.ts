@@ -10,7 +10,7 @@ import {
   MulToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -47,9 +47,38 @@ export class Parser {
     return node;
   }
 
+  /** compound_statement: BEGIN statement_list END */
   private compound_statement () {
+    this.eat(TokenType.BEGIN);
+    const nodes = this.statement_list();
+    this.eat(TokenType.END);
 
+    const root = new Compound();
+    for (const node of nodes) {
+      root.children.push(node);
+    }
+
+    return root;
   }
+
+  /** statement_list : statement | statement SEMI statement_list */
+  private statement_list (): AST[] {
+    const node = this.statement();
+
+    const results = [node];
+
+    while (this.current_token?.type === TokenType.SEMI) {
+      this.eat(TokenType.SEMI);
+      results.push(this.statement());
+    }
+
+    if (this.current_token?.type === TokenType.ID) {
+      throw new Error("Invalid syntax.");
+    }
+
+    return results;
+  }
+
 
   /**
    * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN
@@ -125,6 +154,6 @@ export class Parser {
   }
 
   public parse (): AST {
-    return this.expr();
+    return this.program();
   }
 }
