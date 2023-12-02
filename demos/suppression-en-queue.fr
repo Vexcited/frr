@@ -1,0 +1,19 @@
+procédure adjonction_queue (v : entier ; p : ListeChaînée)
+début
+  avec sp : Maillon
+  
+  si p.tête = null alors
+		adjonction_tête(v ; p)
+	sinon
+		sp <- p.tête
+		
+    tant que sp.suivant != null faire
+			sp <- sp.suivant
+		fin faire
+
+		sp.suivant <- Maillon()
+		sp <- sp.suivant
+		sp.v <- v
+		sp.suivant <- null
+	fin si
+fin adjonction_queue

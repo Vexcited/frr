@@ -1,0 +1,4 @@
+programme HelloWorld
+début
+  afficher "Bonjour, Monde !"
+fin HelloWorld
