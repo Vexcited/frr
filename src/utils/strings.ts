@@ -24,6 +24,10 @@ export const is_space = (character: string): boolean => {
   return character === " ";
 };
 
+export const is_newline = (character: string): boolean => {
+  return character === "\n";
+};
+
 /**
  * Tells if the given character is alphanumeric.
  * @example
