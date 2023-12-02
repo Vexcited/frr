@@ -1,4 +1,4 @@
-import { is_alnum, is_alpha, is_digit, is_space } from "../utils/strings";
+import { is_alnum, is_alpha, is_digit, is_newline, is_space } from "../utils/strings";
 
 import {
   DivToken,
@@ -11,6 +11,8 @@ import {
   RParenToken,
   BeginToken,
   ProgramToken,
+  EndToken,
+  LineBreakToken,
 
   type Token,
   IDToken,
@@ -19,7 +21,8 @@ import {
 
 const RESERVED_KEYWORDS = {
   "programme": new ProgramToken(),
-  "début": new BeginToken()
+  "début": new BeginToken(),
+  "fin": new EndToken()
 } as const;
 
 export class Lexer {
@@ -34,7 +37,7 @@ export class Lexer {
   }
 
   /** Advance the 'pos' pointer and set the 'current_char' variable. */
-  private advance (): void {
+  private advance(): void {
     this.pos += 1;
     if (this.pos > this.text.length - 1) {
       // Indicates end of input.
@@ -45,14 +48,14 @@ export class Lexer {
     }
   }
 
-  private skip_whitespace (): void {
+  private skip_whitespace(): void {
     while (this.current_char !== null && is_space(this.current_char)) {
       this.advance();
     }
   }
 
   /** Return a (multi-digit) integer consumed from the input. */
-  private integer (): number {
+  private integer(): number {
     let result = "";
 
     while (this.current_char !== null && is_digit(this.current_char)) {
@@ -64,7 +67,7 @@ export class Lexer {
     return parseInt(result);
   }
 
-  private peek (): string | null {
+  private peek(): string | null {
     const peek_pos = this.pos + 1;
     if (peek_pos > this.text.length - 1) {
       return null;
@@ -75,7 +78,7 @@ export class Lexer {
   }
 
   /** Handle identifiers and reserved keywords. */
-  private _id (): typeof RESERVED_KEYWORDS[keyof typeof RESERVED_KEYWORDS] | IDToken {
+  private _id(): typeof RESERVED_KEYWORDS[keyof typeof RESERVED_KEYWORDS] | IDToken {
     let result = "";
 
     while (this.current_char !== null && is_alnum(this.current_char)) {
@@ -93,11 +96,16 @@ export class Lexer {
    * This method is responsible for breaking a sentence
    * apart into tokens.
    */
-  public get_next_token (): Token {
+  public get_next_token(): Token {
     while (this.current_char !== null) {
       if (is_space(this.current_char)) {
         this.skip_whitespace();
         continue;
+      }
+
+      if (is_newline(this.current_char)) {
+        this.advance();
+        return new LineBreakToken();
       }
 
       if (is_digit(this.current_char)) {
