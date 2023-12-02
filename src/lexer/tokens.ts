@@ -10,6 +10,7 @@ export enum TokenType {
   BEGIN = "BEGIN",
   END = "END",
   ASSIGN = "ASSIGN",
+  LINE_BREAK = "LINE_BREAK",
   ID = "ID",
   EOF = "EOF"
 }
@@ -87,6 +88,12 @@ export class EndToken extends BaseToken<string> {
   }
 }
 
+export class LineBreakToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.LINE_BREAK, "\n");
+  }
+}
+
 export class IDToken extends BaseToken<string> {
   constructor (value: string) {
     super(TokenType.ID, value);
@@ -119,4 +126,5 @@ export type Token = (
   | LParenToken
   | RParenToken
   | EOFToken
+  | LineBreakToken
 );
