@@ -4,7 +4,7 @@ export class BinaryOperation {
   public type = "BinaryOperation";
   public token: BinaryOperationToken;
 
-  constructor (public left: IntegerNumber | BinaryOperation | UnaryOperation, public operation: BinaryOperationToken, public right: IntegerNumber | BinaryOperation | UnaryOperation) {
+  constructor (public left: IntegerNumber | BinaryOperation | UnaryOperation | Variable, public operation: BinaryOperationToken, public right: IntegerNumber | BinaryOperation | UnaryOperation | Variable) {
     this.token = operation;
   }
 }
@@ -22,7 +22,7 @@ export class UnaryOperation {
   public type = "UnaryOperation";
   public token: BinaryOperationToken;
 
-  constructor (public operation: BinaryOperationToken, public expr: IntegerNumber | BinaryOperation | UnaryOperation) {
+  constructor (public operation: BinaryOperationToken, public expr: IntegerNumber | BinaryOperation | UnaryOperation | Variable) {
     this.token = operation;
   }
 }
@@ -39,7 +39,7 @@ export class Assign {
   public type = "Assign";
   public token: AssignToken;
 
-  constructor (public left: IDToken, private op: AssignToken, public right: AST) {
+  constructor (public left: Variable, public op: AssignToken, public right: AST) {
     this.token = op;
   }
 }
@@ -53,9 +53,9 @@ export class Variable {
   }
 }
 
+/** Used to represent an empty statement. */
 export class NoOp {
   public type = "NoOp";
 }
-
 
 export type AST = BinaryOperation | IntegerNumber | UnaryOperation | Compound | Variable | Assign | NoOp;
