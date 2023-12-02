@@ -7,10 +7,12 @@ import {
   PlusToken,
   MinusToken,
   DivToken,
-  MulToken
+  MulToken,
+  IDToken,
+  AssignToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -39,18 +41,26 @@ export class Parser {
     }
   }
 
-  /** fin : "fin NOM_PROGRAMME" */
+  /** program: programme `program_name` compound_statement `program_name` */
   private program () {
-    const node = this.compound_statement();
-    this.eat(TokenType.END);
+    this.eat(TokenType.PROGRAM);
     this.eat(TokenType.ID);
+    this.eat(TokenType.LINE_BREAK);
+
+    // Handles `début\n` and `fin` tokens.
+    const node = this.compound_statement();
+    this.eat(TokenType.ID);
+
     return node;
   }
 
-  /** compound_statement: BEGIN statement_list END */
+  /** compound_statement: début statement_list fin */
   private compound_statement () {
     this.eat(TokenType.BEGIN);
+    this.eat(TokenType.LINE_BREAK);
+
     const nodes = this.statement_list();
+
     this.eat(TokenType.END);
 
     const root = new Compound();
@@ -61,38 +71,78 @@ export class Parser {
     return root;
   }
 
-  /** statement_list : statement | statement SEMI statement_list */
-  private statement_list (): AST[] {
+  /** statement_list : statement | statement \n statement_list */
+  private statement_list (): Array<AST> {
     const node = this.statement();
-
     const results = [node];
 
-    while (this.current_token?.type === TokenType.SEMI) {
-      this.eat(TokenType.SEMI);
+    // After the first statement, we expect the token to be a line break.
+    // So we can loop on every statement until we reach the end of the program.
+
+    while (this.current_token?.type === TokenType.LINE_BREAK) {
+      // Eat the line break and move to next token.
+      this.eat(TokenType.LINE_BREAK);
+
+      // @ts-expect-error -> We moved to next token.
+      if (this.current_token?.type === TokenType.END) break;
+
       results.push(this.statement());
     }
 
-    if (this.current_token?.type === TokenType.ID) {
+    if (this.current_token?.type !== TokenType.END) {
       throw new Error("Invalid syntax.");
     }
 
     return results;
   }
 
+  private statement (): AST {
+    if (this.current_token?.type === TokenType.ID) {
+      return this.assignment_statement();
+    }
+    else {
+      return this.empty();
+    }
+  }
+
+  private assignment_statement (): Assign {
+    const left = this.variable();
+    // We keep the variable ID token to pass it in `Assign` node.
+    const token = this.current_token as AssignToken;
+
+    // Assign sign `<-`.
+    this.eat(TokenType.ASSIGN);
+
+    // Value of the variable.
+    const right = this.expr();
+
+    return new Assign(left, token, right);
+  }
+
+  private variable (): Variable {
+    const node = new Variable(this.current_token as IDToken);
+    this.eat(TokenType.ID);
+    return node;
+  }
+
+  private empty (): AST {
+    return new NoOp();
+  }
+
 
   /**
-   * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN
+   * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
    */
-  private factor (): BinaryOperation | IntegerNumber | UnaryOperation {
+  private factor (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
     const token = this.current_token!;
 
     switch (token.type) {
       case TokenType.PLUS:
         this.eat(TokenType.PLUS);
-        return new UnaryOperation(token as PlusToken, this.factor());
+        return new UnaryOperation(token as PlusToken, this.factor() as IntegerNumber | BinaryOperation | UnaryOperation);
       case TokenType.MINUS:
         this.eat(TokenType.MINUS);
-        return new UnaryOperation(token as MinusToken, this.factor());
+        return new UnaryOperation(token as MinusToken, this.factor() as IntegerNumber | BinaryOperation | UnaryOperation);
       case TokenType.INTEGER:
         this.eat(TokenType.INTEGER);
         return new IntegerNumber(token as EntierToken);
@@ -104,11 +154,12 @@ export class Parser {
       }
     }
 
-    throw new Error("Invalid syntax.");
+    // If the token is not one of the above types, it must be a variable.
+    return this.variable();
   }
 
   /** term : factor ((MUL | DIV) factor)* */
-  private term (): BinaryOperation | IntegerNumber | UnaryOperation {
+  private term (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
     let node = this.factor();
 
     while (this.current_token?.type && [TokenType.MUL, TokenType.DIV].includes(this.current_token.type)) {
@@ -134,7 +185,7 @@ export class Parser {
    * term   : factor ((MUL | DIV) factor)*
    * factor : INTEGER | LPAREN expr RPAREN
    */
-  private expr (): BinaryOperation | IntegerNumber | UnaryOperation {
+  private expr (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
     let node = this.term();
 
     while (this.current_token?.type && [TokenType.PLUS, TokenType.MINUS].includes(this.current_token.type)) {
