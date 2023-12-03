@@ -30,25 +30,25 @@ class BaseToken<T> {
 
 export class IntegerToken extends BaseToken<string> {
   constructor () {
-    super(TokenType.INTEGER_CONST, "entier");
+    super(TokenType.INTEGER, "entier");
   }
 }
 
 export class RealToken extends BaseToken<string> {
   constructor () {
-    super(TokenType.REAL_CONST, "réel");
+    super(TokenType.REAL, "réel");
   }
 }
 
 export class IntegerConstToken extends BaseToken<number> {
   constructor (value: number) {
-    super(TokenType.INTEGER, value);
+    super(TokenType.INTEGER_CONST, value);
   }
 }
 
 export class RealConstToken extends BaseToken<number> {
   constructor (value: number) {
-    super(TokenType.REAL, value);
+    super(TokenType.REAL_CONST, value);
   }
 }
 
