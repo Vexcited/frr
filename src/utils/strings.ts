@@ -28,32 +28,29 @@ export const is_newline = (character: string): boolean => {
   return character === "\n";
 };
 
+const ALPHA_REGEX = new RegExp("[A-Za-zÀ-ÖØ-öø-ÿ]");
+const ALNUM_REGEX = new RegExp("[A-Za-zÀ-ÖØ-öø-ÿ0-9]");
+
 /**
  * Tells if the given character is alphanumeric.
  * @example
  * is_alnum("a"); // true
+ * is_alnum("é"); // true
  * is_alnum("1"); // true
  * is_alnum(" "); // false
  */
 export const is_alnum = (character: string): boolean => {
-  const regex = new RegExp("[A-Za-zÀ-ÖØ-öø-ÿ0-9]");
-  return regex.test(character);
+  return ALNUM_REGEX.test(character);
 };
 
 /**
  * Tells if the given character is alphabetic.
  * @example
  * is_alpha("a"); // true
+ * is_alpha("é"); // true
  * is_alpha("1"); // false
  * is_alpha(" "); // false
  */
 export const is_alpha = (character: string): boolean => {
-  const code = character.charCodeAt(0);
-
-  if (
-    !(code > 64 && code < 91) && // upper alpha (A-Z)
-    !(code > 96 && code < 123)   // lower alpha (a-z)
-  ) return false;
-
-  return true;
+  return ALPHA_REGEX.test(character);
 };
