@@ -3,7 +3,7 @@ import { Lexer } from "../lexer";
 import {
   type Token, TokenType,
 
-  EntierToken,
+  IntegerConstToken,
   PlusToken,
   MinusToken,
   DivToken,
@@ -143,9 +143,9 @@ export class Parser {
       case TokenType.MINUS:
         this.eat(TokenType.MINUS);
         return new UnaryOperation(token as MinusToken, this.factor() as IntegerNumber | BinaryOperation | UnaryOperation);
-      case TokenType.INTEGER:
-        this.eat(TokenType.INTEGER);
-        return new IntegerNumber(token as EntierToken);
+      case TokenType.INTEGER_CONST:
+        this.eat(TokenType.INTEGER_CONST);
+        return new IntegerNumber(token as IntegerConstToken);
       case TokenType.LPAREN: {
         this.eat(TokenType.LPAREN);
         const node = this.expr();

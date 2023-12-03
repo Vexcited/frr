@@ -1,5 +1,8 @@
 export enum TokenType {
+  INTEGER_CONST = "INTEGER_CONST",
+  REAL_CONST = "REAL_CONST",
   INTEGER = "INTEGER",
+  REAL = "REAL",
   PLUS = "PLUS",
   MINUS = "MINUS",
   MUL = "MUL",
@@ -11,8 +14,11 @@ export enum TokenType {
   END = "END",
   ASSIGN = "ASSIGN",
   LINE_BREAK = "LINE_BREAK",
+  COLON = "COLON",
+  COMMA = "COMMA",
   ID = "ID",
-  EOF = "EOF"
+  EOF = "EOF",
+  VARIABLE_DECLARATION_BLOCK = "VARIABLE_DECLARATION_BLOCK"
 }
 
 class BaseToken<T> {
@@ -22,15 +28,27 @@ class BaseToken<T> {
   ) {}
 }
 
-/**
- * An integer token, named `entier` in French.
- *
- * Operations on that token are currently limited
- * to addition (PLUS) and subtraction (MINUS).
- */
-export class EntierToken extends BaseToken<number> {
+export class IntegerToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.INTEGER_CONST, "entier");
+  }
+}
+
+export class RealToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.REAL_CONST, "réel");
+  }
+}
+
+export class IntegerConstToken extends BaseToken<number> {
   constructor (value: number) {
     super(TokenType.INTEGER, value);
+  }
+}
+
+export class RealConstToken extends BaseToken<number> {
+  constructor (value: number) {
+    super(TokenType.REAL, value);
   }
 }
 
@@ -94,6 +112,18 @@ export class LineBreakToken extends BaseToken<string> {
   }
 }
 
+export class ColonToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.COLON, ":");
+  }
+}
+
+export class CommaToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.COMMA, ",");
+  }
+}
+
 export class IDToken extends BaseToken<string> {
   constructor (value: string) {
     super(TokenType.ID, value);
@@ -115,10 +145,16 @@ export class EOFToken extends BaseToken<string> {
   }
 }
 
+export class VariableDeclarationBlockToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.VARIABLE_DECLARATION_BLOCK, "avec");
+  }
+}
+
 export type BinaryOperationToken = PlusToken | MinusToken | MulToken | DivToken | LParenToken | RParenToken;
 
 export type Token = (
-  | EntierToken
+  | IntegerConstToken
   | PlusToken
   | MinusToken
   | MulToken

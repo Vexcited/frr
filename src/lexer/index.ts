@@ -3,7 +3,8 @@ import { is_alnum, is_alpha, is_digit, is_newline, is_space } from "../utils/str
 import {
   DivToken,
   EOFToken,
-  EntierToken,
+  IntegerConstToken,
+  RealConstToken,
   MinusToken,
   MulToken,
   PlusToken,
@@ -13,16 +14,25 @@ import {
   ProgramToken,
   EndToken,
   LineBreakToken,
+  VariableDeclarationBlockToken,
+  IntegerToken,
+  RealToken,
+  ColonToken,
 
   type Token,
   IDToken,
-  AssignToken
+  AssignToken,
+  CommaToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
   "programme": new ProgramToken(),
   "début": new BeginToken(),
-  "fin": new EndToken()
+  "avec": new VariableDeclarationBlockToken(),
+  "fin": new EndToken(),
+
+  "entier": new IntegerToken(),
+  "réel": new RealToken()
 } as const;
 
 export class Lexer {
@@ -63,8 +73,8 @@ export class Lexer {
     // as it may be used as a line break token.
   }
 
-  /** Return a (multi-digit) integer consumed from the input. */
-  private integer(): number {
+  /** Return a (multi-digit) integer or float consumed from the input. */
+  private handleNumber(): RealConstToken | IntegerConstToken {
     let result = "";
 
     while (this.current_char !== null && is_digit(this.current_char)) {
@@ -73,7 +83,21 @@ export class Lexer {
       this.advance();
     }
 
-    return parseInt(result);
+    // Handle floating point numbers.
+    if (this.current_char === ".") {
+      // We concatenate the '.' character.
+      result += this.current_char;
+      this.advance();
+
+      while (this.current_char !== null && is_digit(this.current_char)) {
+        result += this.current_char;
+        this.advance();
+      }
+
+      return new RealConstToken(parseFloat(result));
+    }
+
+    return new IntegerConstToken(parseInt(result));
   }
 
   private peek(): string | null {
@@ -107,39 +131,50 @@ export class Lexer {
    */
   public get_next_token(): Token {
     while (this.current_char !== null) {
-      // Skip comments.
+      // Handle comments by skipping them.
       if (this.current_char === "#") {
         this.advance(); // Skip the '#'.
         this.skip_comment();
         continue;
       }
 
-      // Skip spaces.
+      // We don't really mind about spaces, so skip them.
       if (is_space(this.current_char)) {
         this.skip_whitespace();
         continue;
       }
 
+      // Handle new lines as tokens too.
       if (is_newline(this.current_char)) {
         this.advance();
         return new LineBreakToken();
       }
 
+      // If the current character is a digit.
       if (is_digit(this.current_char)) {
-        return new EntierToken(this.integer());
+        return this.handleNumber();
       }
 
+      // If the current character is a letter.
       if (is_alpha(this.current_char)) {
         return this._id();
       }
 
+      // Handle `<-` token.
       if (this.current_char === "<" && this.peek() === "-") {
         this.advance();
         this.advance();
         return new AssignToken();
       }
 
+      // Handle every other single character token.
       switch (this.current_char) {
+        case ",":
+          this.advance();
+          return new CommaToken();
+        case ":":
+          this.advance();
+          return new ColonToken();
         case "+":
           this.advance();
           return new PlusToken();

@@ -1,4 +1,4 @@
-import type { EntierToken, BinaryOperationToken, IDToken, AssignToken } from "../lexer/tokens";
+import type { IntegerConstToken, BinaryOperationToken, IDToken, AssignToken } from "../lexer/tokens";
 
 export class BinaryOperation {
   public type = "BinaryOperation";
@@ -13,7 +13,7 @@ export class IntegerNumber {
   public type = "IntegerNumber";
   public value: number;
 
-  constructor (public token: EntierToken) {
+  constructor (public token: IntegerConstToken) {
     this.value = token.value;
   }
 }
