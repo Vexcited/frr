@@ -54,6 +54,15 @@ export class Lexer {
     }
   }
 
+  private skip_comment(): void {
+    while (this.current_char !== null && !is_newline(this.current_char)) {
+      this.advance();
+    }
+
+    // We don't skip the newline character
+    // as it may be used as a line break token.
+  }
+
   /** Return a (multi-digit) integer consumed from the input. */
   private integer(): number {
     let result = "";
@@ -98,6 +107,14 @@ export class Lexer {
    */
   public get_next_token(): Token {
     while (this.current_char !== null) {
+      // Skip comments.
+      if (this.current_char === "#") {
+        this.advance(); // Skip the '#'.
+        this.skip_comment();
+        continue;
+      }
+
+      // Skip spaces.
       if (is_space(this.current_char)) {
         this.skip_whitespace();
         continue;
