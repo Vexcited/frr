@@ -16,6 +16,37 @@ fin HelloWorld
 
 ## Documentation
 
+### Variable types
+
+When you define a variable, you have to define its type. Here are the available types.
+Those types are **case sensitive**, so always in lowercase.
+
+- `entier` (integer)
+- `réel` (float)
+- `caractère` (character)
+- `chaîne` (string)
+- `booléen` (boolean)
+
+### Variable declaration
+
+When you're in a scope, so after the `début` keyword, you can start the variables declaration block using the `avec` keyword.
+
+```fr
+début
+  avec in_line : entier # Can also be on the same line as `avec`.
+    a : entier
+    b : réel
+    c : caractère
+    d : chaîne
+    e : booléen
+
+  a <- 42
+fin
+```
+
+To detect whether we're in the variable declaration section or not,
+we can check if the `avec` keyword has been used. Then go through every line and check if the line contains a `:` character.
+
 ### Comments (`#`)
 
 To write a comment, use the `#` character.
