@@ -1,0 +1,9 @@
+programme Variables
+début
+  avec ma_variable, a : entier
+
+  ma_variable <- 0
+  a <- ma_variable + 2
+
+  afficher a
+fin Variables
