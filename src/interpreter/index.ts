@@ -1,8 +1,7 @@
-import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, Type, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
-import type { Parser } from "../ast";
+import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, RealNumber, UnaryOperation, Variable } from "../ast/nodes";
 import { TokenType } from "../lexer/tokens";
 
-class NodeVisitor {
+class Interpreter {
   public GLOBAL_SCOPE: Record<string, unknown> = {};
 
   public visit (node: AST): number | void {
@@ -12,17 +11,16 @@ class NodeVisitor {
       case "BinaryOperation":
         return this.visitBinaryOperation(node as BinaryOperation);
       case "IntegerNumber":
-        return this.visitIntegerNumber(node as IntegerNumber);
+      case "RealNumber":
+        return this.visitNumber(node as IntegerNumber | RealNumber);
       case "UnaryOperation":
         return this.visitUnaryOperation(node as UnaryOperation);
       case "Compound":
         return this.visitCompound(node as Compound);
       case "VariableDeclaration":
-        return this.visitVariableDeclaration(node as VariableDeclaration);
       case "NoOp":
-        return this.visitNoOp();
       case "Type":
-        return this.visitType(node as Type);
+        return;
       case "Assign":
         return this.visitAssign(node as Assign);
       case "Variable":
@@ -52,17 +50,7 @@ class NodeVisitor {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected visitVariableDeclaration (node: VariableDeclaration): void {
-    // Do nothing.
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected visitType (node: Type): void {
-    // Do nothing.
-  }
-
-  protected visitIntegerNumber (node: IntegerNumber): number {
+  protected visitNumber (node: IntegerNumber | RealNumber): number {
     return node.value;
   }
 
@@ -108,17 +96,11 @@ class NodeVisitor {
 
     return value as number;
   }
-}
 
-export class Interpreter extends NodeVisitor {
-  constructor (private parser: Parser) {
-    super();
-  }
-
-  public interpret () {
-    const tree = this.parser.parse();
+  public interpret (tree: AST) {
     this.visit(tree);
-
     return this.GLOBAL_SCOPE;
   }
 }
+
+export default Interpreter;

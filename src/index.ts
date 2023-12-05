@@ -1,6 +1,7 @@
 import { Lexer } from "./lexer";
 import { Parser } from "./ast";
-import { Interpreter } from "./interpreter";
+import Interpreter from "./interpreter";
+import SymbolTableBuilder from "./symbols/visitor";
 
 const code = `
 programme HelloWorld
@@ -13,26 +14,28 @@ début # ceci est le début du programme
 fin HelloWorld
 `.trim();
 
-// let token = lexer.get_next_token();
-// while (token.type !== "EOF") {
-//   console.log(token);
-//   token = lexer.get_next_token();
-// }
-
 try {
   const lexer = new Lexer(code);
   const parser = new Parser(lexer);
-  // console.log(JSON.stringify(parser.parse(), null, 2));
-  // console.log(parser.parse());
-  const interpreter = new Interpreter(parser);
-  const result = interpreter.interpret();
-  console.log(result);
+  const tree = parser.parse();
+
+  // We check the code for any syntax errors.
+  const symbol_table_builder = new SymbolTableBuilder();
+  symbol_table_builder.visit(tree);
+
+  console.log(symbol_table_builder.symbol_table);
+
+  // We interpret the code.
+  const interpreter = new Interpreter();
+  const global_scope = interpreter.interpret(tree);
+
+  console.log(global_scope);
 }
 catch (error) {
   if (error instanceof Error) {
-    console.error("[Error]", error.message);
+    console.error(error.message);
   }
   else {
-    console.error("[UnknownError]", error);
+    console.error("UnknownError:", error);
   }
 }
