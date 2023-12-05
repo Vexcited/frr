@@ -37,7 +37,7 @@ const RESERVED_KEYWORDS = {
 
 export class Lexer {
   /** Current position in `this.text`. */
-  private pos = 0;
+  public pos = 0;
   /** Current character in `this.text`. */
   private current_char: string | null = null;
 
@@ -56,6 +56,12 @@ export class Lexer {
     else {
       this.current_char = this.text[this.pos];
     }
+  }
+
+  /** Go back to a previous position in the text input. */
+  public goto (pos: number): void {
+    this.pos = pos;
+    this.current_char = this.text[this.pos];
   }
 
   private skip_whitespace(): void {

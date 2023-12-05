@@ -12,7 +12,7 @@ import {
   AssignToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -41,17 +41,89 @@ export class Parser {
     }
   }
 
-  /** program: programme `program_name` compound_statement `program_name` */
+  /** program: programme `variable` compound_statement `variable` */
   private program () {
     this.eat(TokenType.PROGRAM);
-    this.eat(TokenType.ID);
+    const variable_node = this.variable();
+    const program_name = variable_node.value;
     this.eat(TokenType.LINE_BREAK);
 
     // Handles `début\n` and `fin` tokens.
+    // Also handles the variable declarations.
     const node = this.compound_statement();
-    this.eat(TokenType.ID);
 
-    return node;
+    // Check if the program name matches.
+    // Otherwise raise an exception.
+    const end_variable_node = this.variable();
+    if (end_variable_node.value !== program_name) {
+      throw new Error(`Le nom du programme principal ne correspond pas à celui assigné au début (${program_name}).\nVérifiez que vous avez bien écrit "fin ${program_name}".\nValeur reçu: "fin ${end_variable_node.value}"`);
+    }
+
+    const program_node = new Program(program_name, node);
+    return program_node;
+  }
+
+  private skip_newlines (): void {
+    while (this.current_token?.type === TokenType.LINE_BREAK) {
+      this.eat(TokenType.LINE_BREAK);
+    }
+  }
+
+  private declarations () {
+    // Handles `avec` token.
+    this.eat(TokenType.VARIABLE_DECLARATION_BLOCK);
+    this.skip_newlines();
+
+    const declarations = this.variable_declaration();
+
+    let is_in_declaration_block = true;
+    while (is_in_declaration_block) {
+      const current_pos = this.lexer.pos;
+      const current_token = this.current_token;
+      this.skip_newlines();
+
+      try {
+        declarations.push(...this.variable_declaration());
+      }
+      catch {
+        this.lexer.goto(current_pos);
+        this.current_token = current_token;
+        is_in_declaration_block = false;
+      }
+    }
+
+    return declarations;
+  }
+
+  private variable_declaration () {
+    const var_nodes = [this.variable()];
+
+    while (this.current_token?.type === TokenType.COMMA) {
+      this.eat(TokenType.COMMA);
+      var_nodes.push(this.variable());
+    }
+
+    this.eat(TokenType.COLON);
+
+    const type_node = this.type_spec();
+    const var_declarations = var_nodes.map((var_node) => new VariableDeclaration(var_node, type_node));
+    return var_declarations;
+  }
+
+  private type_spec () {
+    const token = this.current_token as IDToken;
+
+    if (token.type === TokenType.INTEGER) {
+      this.eat(TokenType.INTEGER);
+    }
+    else if (token.type === TokenType.REAL) {
+      this.eat(TokenType.REAL);
+    }
+    else {
+      throw new Error("Invalid type.");
+    }
+
+    return new Type(token);
   }
 
   /** compound_statement: début statement_list fin */
@@ -59,11 +131,17 @@ export class Parser {
     this.eat(TokenType.BEGIN);
     this.eat(TokenType.LINE_BREAK);
 
-    const nodes = this.statement_list();
+    let declarations: VariableDeclaration[] = [];
+    if (this.current_token?.type === TokenType.VARIABLE_DECLARATION_BLOCK) {
+      declarations = this.declarations();
+    }
 
+    const nodes = this.statement_list();
     this.eat(TokenType.END);
 
     const root = new Compound();
+    root.declared_variables = declarations;
+
     for (const node of nodes) {
       root.children.push(node);
     }

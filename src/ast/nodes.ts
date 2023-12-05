@@ -27,11 +27,46 @@ export class UnaryOperation {
   }
 }
 
+export class Program {
+  public type = "Program";
+
+  constructor (
+    public name: string,
+    public compound: Compound
+  ) {}
+}
+
+export class Block {
+  public type = "Block";
+
+  constructor (
+    public declarations: VariableDeclaration[],
+    public compound_statement: Compound
+  ) {}
+}
+
+export class VariableDeclaration {
+  constructor (
+    public var_node : Variable,
+    public type_node : Type
+  ) {}
+}
+
+export class Type {
+  public type = "Type";
+  public value: string;
+
+  constructor (public token: IDToken) {
+    this.value = token.value;
+  }
+}
+
 /**
- * Represents a "début" and "fin `scope`" of a program.
+ * Represents a "début" and "fin `scope_name`".
  */
 export class Compound {
   public type = "Compound";
+  public declared_variables: VariableDeclaration[] = [];
   public children: Omit<AST, "Compound">[] = [];
 }
 
