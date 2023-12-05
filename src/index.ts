@@ -6,12 +6,10 @@ const code = `
 programme HelloWorld
 début # ceci est le début du programme
   avec
-    a, c : entier
-    b : entier
-    d : réel
+    a, b : entier
 
   a <- 6
-  b <- a + 9
+  b <- a + 1
 fin HelloWorld
 `.trim();
 

@@ -1,4 +1,4 @@
-import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, UnaryOperation, Variable } from "../ast/nodes";
+import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, Type, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
 import type { Parser } from "../ast";
 import { TokenType } from "../lexer/tokens";
 
@@ -7,6 +7,8 @@ class NodeVisitor {
 
   public visit (node: AST): number | void {
     switch (node.type) {
+      case "Program":
+        return this.visitProgram(node as Program);
       case "BinaryOperation":
         return this.visitBinaryOperation(node as BinaryOperation);
       case "IntegerNumber":
@@ -15,8 +17,12 @@ class NodeVisitor {
         return this.visitUnaryOperation(node as UnaryOperation);
       case "Compound":
         return this.visitCompound(node as Compound);
+      case "VariableDeclaration":
+        return this.visitVariableDeclaration(node as VariableDeclaration);
       case "NoOp":
         return this.visitNoOp();
+      case "Type":
+        return this.visitType(node as Type);
       case "Assign":
         return this.visitAssign(node as Assign);
       case "Variable":
@@ -24,6 +30,10 @@ class NodeVisitor {
       default:
         throw new Error("Invalid node type.\nNode received: " + node.type);
     }
+  }
+
+  protected visitProgram (node: Program): void {
+    this.visit(node.compound);
   }
 
   protected visitBinaryOperation (node: BinaryOperation): number {
@@ -42,6 +52,16 @@ class NodeVisitor {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected visitVariableDeclaration (node: VariableDeclaration): void {
+    // Do nothing.
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected visitType (node: Type): void {
+    // Do nothing.
+  }
+
   protected visitIntegerNumber (node: IntegerNumber): number {
     return node.value;
   }
@@ -58,6 +78,12 @@ class NodeVisitor {
   }
 
   protected visitCompound (node: Compound): void {
+    // Handle every variable declarations made.
+    for (const declaration of node.declared_variables) {
+      this.visit(declaration);
+    }
+
+    // Handle every statements made.
     for (const child of node.children) {
       this.visit(child);
     }

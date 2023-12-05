@@ -49,16 +49,9 @@ export class Program {
   ) {}
 }
 
-export class Block {
-  public type = "Block";
-
-  constructor (
-    public declarations: VariableDeclaration[],
-    public compound_statement: Compound
-  ) {}
-}
-
 export class VariableDeclaration {
+  public type = "VariableDeclaration";
+
   constructor (
     public var_node : Variable,
     public type_node : Type
@@ -80,7 +73,7 @@ export class Type {
 export class Compound {
   public type = "Compound";
   public declared_variables: VariableDeclaration[] = [];
-  public children: Omit<AST, "Compound">[] = [];
+  public children: Omit<AST, "Compound" | "VariableDeclaration">[] = [];
 }
 
 export class Assign {
@@ -106,4 +99,4 @@ export class NoOp {
   public type = "NoOp";
 }
 
-export type AST = BinaryOperation | IntegerNumber | UnaryOperation | Compound | Variable | Assign | NoOp;
+export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp;
