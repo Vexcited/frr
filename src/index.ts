@@ -8,11 +8,13 @@ programme HelloWorld
 début # ceci est le début du programme
   avec
     a, b : entier
-    c : chaîne
+    c, d, e : chaîne
 
   a <- 6
   b <- a + 1
-  c <- "Hello, world!"
+  c <- "Hello"
+  d <- "World"
+  e <- c + ", \\"" + d + "\\" !"
 fin HelloWorld
 `.trim();
 

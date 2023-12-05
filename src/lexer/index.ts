@@ -125,7 +125,10 @@ export class Lexer {
         }
       }
 
-      result += this.current_char;
+      if (this.current_char !== "\\") {
+        result += this.current_char;
+      }
+
       this.advance();
     }
 
