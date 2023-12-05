@@ -46,11 +46,10 @@ export class Parser {
     this.eat(TokenType.PROGRAM);
     const variable_node = this.variable();
     const program_name = variable_node.value;
+    // We expect a line break after the program name.
     this.eat(TokenType.LINE_BREAK);
 
-    // Handles `début\n` and `fin` tokens.
-    // Also handles the variable declarations.
-    const node = this.compound_statement();
+    const compound = this.compound_statement();
 
     // Check if the program name matches.
     // Otherwise raise an exception.
@@ -59,7 +58,7 @@ export class Parser {
       throw new Error(`Le nom du programme principal ne correspond pas à celui assigné au début (${program_name}).\nVérifiez que vous avez bien écrit "fin ${program_name}".\nValeur reçu: "fin ${end_variable_node.value}"`);
     }
 
-    const program_node = new Program(program_name, node);
+    const program_node = new Program(program_name, compound);
     return program_node;
   }
 
@@ -69,22 +68,32 @@ export class Parser {
     }
   }
 
+  /**
+   * Handles variable declarations.
+   * declarations : avec variable_declaration (variable_declaration)*
+   */
   private declarations () {
     // Handles `avec` token.
     this.eat(TokenType.VARIABLE_DECLARATION_BLOCK);
-    this.skip_newlines();
+    this.skip_newlines(); // It can be on same line as `avec`, but also on next line.
 
+    // When an "avec" is used, we expect at least one variable declaration.
     const declarations = this.variable_declaration();
 
     let is_in_declaration_block = true;
     while (is_in_declaration_block) {
       const current_pos = this.lexer.pos;
       const current_token = this.current_token;
+
+      // When we ended previous declaration, we expect one or multiple line breaks.
       this.skip_newlines();
 
       try {
+        // Get every new variable declaration.
         declarations.push(...this.variable_declaration());
       }
+      // Whenever we don't use a colon after an ID, we're not in a declaration block anymore.
+      // So we need to go back to the previous token (end of declaration) and stop the loop.
       catch {
         this.lexer.goto(current_pos);
         this.current_token = current_token;
@@ -95,6 +104,10 @@ export class Parser {
     return declarations;
   }
 
+  /**
+   * Handles variable declarations.
+   * variable_declaration : ID (COMMA ID)* COLON type_spec
+   */
   private variable_declaration () {
     const var_nodes = [this.variable()];
 
@@ -110,6 +123,10 @@ export class Parser {
     return var_declarations;
   }
 
+  /**
+   * Handles the type of a variable in the declaration block.
+   * type_spec : INTEGER | REAL
+   */
   private type_spec () {
     const token = this.current_token as IDToken;
 
@@ -126,11 +143,16 @@ export class Parser {
     return new Type(token);
   }
 
-  /** compound_statement: début statement_list fin */
+  /**
+   * Handles a compound statement.
+   * compound_statement : avec statement_list fin
+   */
   private compound_statement () {
     this.eat(TokenType.BEGIN);
+    // Requires a line break after `début`.
     this.eat(TokenType.LINE_BREAK);
 
+    // Handle the variable declarations if there are any.
     let declarations: VariableDeclaration[] = [];
     if (this.current_token?.type === TokenType.VARIABLE_DECLARATION_BLOCK) {
       declarations = this.declarations();
@@ -141,10 +163,7 @@ export class Parser {
 
     const root = new Compound();
     root.declared_variables = declarations;
-
-    for (const node of nodes) {
-      root.children.push(node);
-    }
+    root.children = nodes;
 
     return root;
   }
@@ -161,7 +180,8 @@ export class Parser {
       // Eat the line break and move to next token.
       this.eat(TokenType.LINE_BREAK);
 
-      // @ts-expect-error -> We moved to next token.
+      // @ts-expect-error : We moved to next token.
+      // Check if the next token is the end of the program.
       if (this.current_token?.type === TokenType.END) break;
 
       results.push(this.statement());
@@ -174,6 +194,9 @@ export class Parser {
     return results;
   }
 
+  /**
+   * Handles a statement in a program (TODO: or a function or procedure).
+   */
   private statement (): AST {
     if (this.current_token?.type === TokenType.ID) {
       return this.assignment_statement();
@@ -183,6 +206,7 @@ export class Parser {
     }
   }
 
+  /** assignment_statement : variable <- expr */
   private assignment_statement (): Assign {
     const left = this.variable();
     // We keep the variable ID token to pass it in `Assign` node.
@@ -197,16 +221,20 @@ export class Parser {
     return new Assign(left, token, right);
   }
 
+  /**
+   * Handles the variable node.
+   * variable: ID
+   */
   private variable (): Variable {
     const node = new Variable(this.current_token as IDToken);
     this.eat(TokenType.ID);
     return node;
   }
 
+  /** empty : <no_op> */
   private empty (): AST {
     return new NoOp();
   }
-
 
   /**
    * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
