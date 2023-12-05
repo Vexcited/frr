@@ -1,5 +1,23 @@
 # French Pseudo-code
 
+## Install
+
+<!-- This will be a CLI tool, so you can install it with the provided binaries in the Releases section. -->
+
+### Windows
+
+Those bundles aren't made with Bun since it's not supported on Windows yet.
+
+Instead, I use `pkg` from Vercel to bundle the code with a Node.js binary.
+
+- TODO: Make Windows bundles
+
+### Linux and macOS
+
+Those binaries are compiled with Bun.
+
+- TODO: Make Linux and macOS bundles
+
 ## Examples
 
 ### Hello World
