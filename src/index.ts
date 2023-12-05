@@ -28,6 +28,7 @@ try {
   // console.log(parser.parse());
   const interpreter = new Interpreter(parser);
   const result = interpreter.interpret();
+  console.log(result);
 }
 catch (error) {
   if (error instanceof Error) {

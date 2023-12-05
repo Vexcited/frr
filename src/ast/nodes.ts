@@ -1,10 +1,14 @@
-import type { IntegerConstToken, BinaryOperationToken, IDToken, AssignToken } from "../lexer/tokens";
+import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken } from "../lexer/tokens";
 
 export class BinaryOperation {
   public type = "BinaryOperation";
   public token: BinaryOperationToken;
 
-  constructor (public left: IntegerNumber | BinaryOperation | UnaryOperation | Variable, public operation: BinaryOperationToken, public right: IntegerNumber | BinaryOperation | UnaryOperation | Variable) {
+  constructor (
+    public left: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable,
+    public operation: BinaryOperationToken,
+    public right: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable
+  ) {
     this.token = operation;
   }
 }
@@ -14,6 +18,15 @@ export class IntegerNumber {
   public value: number;
 
   constructor (public token: IntegerConstToken) {
+    this.value = token.value;
+  }
+}
+
+export class RealNumber {
+  public type = "RealNumber";
+  public value: number;
+
+  constructor (public token: RealConstToken) {
     this.value = token.value;
   }
 }

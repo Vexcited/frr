@@ -22,7 +22,7 @@ class NodeVisitor {
       case "Variable":
         return this.visitVariable(node as Variable);
       default:
-        throw new Error("Invalid node type.");
+        throw new Error("Invalid node type.\nNode received: " + node.type);
     }
   }
 

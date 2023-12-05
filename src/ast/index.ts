@@ -9,10 +9,11 @@ import {
   DivToken,
   MulToken,
   IDToken,
-  AssignToken
+  AssignToken,
+  RealConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -237,21 +238,35 @@ export class Parser {
   }
 
   /**
-   * factor : (PLUS | MINUS) factor | INTEGER | LPAREN expr RPAREN | variable
+   * factor : PLUS factor
+   *        | MINUS factor
+   *        | INTEGER_CONST
+   *        | REAL_CONST
+   *        | LPAREN expr RPAREN
+   *        | variable
    */
-  private factor (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
+  private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable {
     const token = this.current_token!;
 
     switch (token.type) {
+      // PLUS factor
       case TokenType.PLUS:
         this.eat(TokenType.PLUS);
-        return new UnaryOperation(token as PlusToken, this.factor() as IntegerNumber | BinaryOperation | UnaryOperation);
+        return new UnaryOperation(token as PlusToken, this.factor() as IntegerNumber | RealNumber | BinaryOperation | UnaryOperation);
+      // MINUS factor
       case TokenType.MINUS:
         this.eat(TokenType.MINUS);
-        return new UnaryOperation(token as MinusToken, this.factor() as IntegerNumber | BinaryOperation | UnaryOperation);
+        return new UnaryOperation(token as MinusToken, this.factor() as IntegerNumber | RealNumber | BinaryOperation | UnaryOperation);
+
+      // INTEGER_CONST | REAL_CONST
       case TokenType.INTEGER_CONST:
         this.eat(TokenType.INTEGER_CONST);
         return new IntegerNumber(token as IntegerConstToken);
+      case TokenType.REAL_CONST:
+        this.eat(TokenType.REAL_CONST);
+        return new RealNumber(token as RealConstToken);
+
+      // LPAREN expr RPAREN
       case TokenType.LPAREN: {
         this.eat(TokenType.LPAREN);
         const node = this.expr();
@@ -271,9 +286,11 @@ export class Parser {
     while (this.current_token?.type && [TokenType.MUL, TokenType.DIV].includes(this.current_token.type)) {
       const token = this.current_token as MulToken | DivToken;
 
+      // Handle multiplications in the expression.
       if (token.type === TokenType.MUL) {
         this.eat(TokenType.MUL);
       }
+      // Handle integer divisions in the expression.
       else if (token.type === TokenType.DIV) {
         this.eat(TokenType.DIV);
       }
