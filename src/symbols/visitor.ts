@@ -25,6 +25,7 @@ class SymbolTableBuilder {
       // All those are not handled by the symbol table.
       case "IntegerNumber":
       case "RealNumber":
+      case "StringConstant":
       case "NoOp":
       case "Type":
         return;

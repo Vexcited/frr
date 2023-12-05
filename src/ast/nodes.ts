@@ -1,4 +1,4 @@
-import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken } from "../lexer/tokens";
+import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken } from "../lexer/tokens";
 
 export class BinaryOperation {
   public type = "BinaryOperation";
@@ -27,6 +27,15 @@ export class RealNumber {
   public value: number;
 
   constructor (public token: RealConstToken) {
+    this.value = token.value;
+  }
+}
+
+export class StringConstant {
+  public type = "StringConstant";
+  public value: string;
+
+  constructor (public token: StringConstToken) {
     this.value = token.value;
   }
 }
@@ -99,4 +108,4 @@ export class NoOp {
   public type = "NoOp";
 }
 
-export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp;
+export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp | StringConstant;

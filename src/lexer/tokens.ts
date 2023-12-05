@@ -16,6 +16,10 @@ export enum TokenType {
   LINE_BREAK = "LINE_BREAK",
   COLON = "COLON",
   COMMA = "COMMA",
+  STRING = "STRING",
+  CHAR = "CHAR",
+  STRING_CONST = "STRING_CONST",
+  CHAR_CONST = "CHAR_CONST",
   ID = "ID",
   EOF = "EOF",
   VARIABLE_DECLARATION_BLOCK = "VARIABLE_DECLARATION_BLOCK"
@@ -136,6 +140,30 @@ export class AssignToken extends BaseToken<string> {
   }
 }
 
+export class StringConstToken extends BaseToken<string> {
+  constructor (value: string) {
+    super(TokenType.STRING_CONST, value);
+  }
+}
+
+export class StringToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.STRING, "chaîne");
+  }
+}
+
+export class CharConstToken extends BaseToken<string> {
+  constructor (value: string) {
+    super(TokenType.CHAR_CONST, value);
+  }
+}
+
+export class CharToken extends BaseToken<string> {
+  constructor (value: string) {
+    super(TokenType.CHAR, value);
+  }
+}
+
 /**
  * End of file/input token.
  */
@@ -153,14 +181,12 @@ export class VariableDeclarationBlockToken extends BaseToken<string> {
 
 export type BinaryOperationToken = PlusToken | MinusToken | MulToken | DivToken | LParenToken | RParenToken;
 
-export type Token = (
+export type Token = BinaryOperationToken | (
   | IntegerConstToken
-  | PlusToken
-  | MinusToken
-  | MulToken
-  | DivToken
-  | LParenToken
-  | RParenToken
+  | RealConstToken
   | EOFToken
   | LineBreakToken
+  | StringConstToken
+  | CharConstToken
+  | CharToken
 );

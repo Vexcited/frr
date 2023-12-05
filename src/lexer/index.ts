@@ -18,6 +18,8 @@ import {
   IntegerToken,
   RealToken,
   ColonToken,
+  StringConstToken,
+  StringToken,
 
   type Token,
   IDToken,
@@ -32,7 +34,8 @@ const RESERVED_KEYWORDS = {
   "fin": new EndToken(),
 
   "entier": new IntegerToken(),
-  "réel": new RealToken()
+  "réel": new RealToken(),
+  "chaîne": new StringToken()
 } as const;
 
 export class Lexer {
@@ -104,6 +107,32 @@ export class Lexer {
     }
 
     return new IntegerConstToken(parseInt(result));
+  }
+
+  private handleString(): StringConstToken {
+    let result = "";
+
+    // We skip the first quote.
+    this.advance();
+
+    while (this.current_char !== null) {
+      if (this.current_char === "\"") {
+        const char_before = this.text[this.pos - 1];
+
+        // Check if it was escaped.
+        if (char_before !== "\\") {
+          break;
+        }
+      }
+
+      result += this.current_char;
+      this.advance();
+    }
+
+    // We skip the last quote.
+    this.advance();
+
+    return new StringConstToken(result);
   }
 
   private peek(): string | null {
@@ -199,6 +228,8 @@ export class Lexer {
         case ")":
           this.advance();
           return new RParenToken();
+        case "\"":
+          return this.handleString();
       }
 
       throw new Error("Invalid character.");

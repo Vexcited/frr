@@ -1,10 +1,10 @@
-import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, RealNumber, UnaryOperation, Variable } from "../ast/nodes";
+import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
 import { TokenType } from "../lexer/tokens";
 
 class Interpreter {
   public GLOBAL_SCOPE: Record<string, unknown> = {};
 
-  public visit (node: AST): number | void {
+  public visit (node: AST) {
     switch (node.type) {
       case "Program":
         return this.visitProgram(node as Program);
@@ -21,6 +21,8 @@ class Interpreter {
         return this.visitAssign(node as Assign);
       case "Variable":
         return this.visitVariable(node as Variable);
+      case "StringConstant":
+        return this.visitStringConstant(node as StringConstant);
       // All those are not handled by the interpreter.
       case "VariableDeclaration":
       case "NoOp":
@@ -96,6 +98,10 @@ class Interpreter {
     }
 
     return value as number;
+  }
+
+  private visitStringConstant (node: StringConstant): string {
+    return node.value;
   }
 
   public interpret (tree: AST) {

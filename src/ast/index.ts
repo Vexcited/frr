@@ -10,10 +10,11 @@ import {
   MulToken,
   IDToken,
   AssignToken,
-  RealConstToken
+  RealConstToken,
+  StringConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -38,7 +39,7 @@ export class Parser {
     }
     // Otherwise raise an exception.
     else {
-      throw new Error("Invalid syntax.");
+      throw new Error("Invalid syntax.\nCurrent token: " + this.current_token?.type + "\nExpected token: " + token_type);
     }
   }
 
@@ -126,7 +127,7 @@ export class Parser {
 
   /**
    * Handles the type of a variable in the declaration block.
-   * type_spec : INTEGER | REAL
+   * type_spec : entier | réel | chaîne
    */
   private type_spec () {
     const token = this.current_token as IDToken;
@@ -136,6 +137,9 @@ export class Parser {
     }
     else if (token.type === TokenType.REAL) {
       this.eat(TokenType.REAL);
+    }
+    else if (token.type === TokenType.STRING) {
+      this.eat(TokenType.STRING);
     }
     else {
       throw new Error("Invalid type.");
@@ -273,6 +277,10 @@ export class Parser {
         this.eat(TokenType.RPAREN);
         return node;
       }
+
+      case TokenType.STRING_CONST:
+        this.eat(TokenType.STRING_CONST);
+        return new StringConstant(token as StringConstToken);
     }
 
     // If the token is not one of the above types, it must be a variable.

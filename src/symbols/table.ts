@@ -11,6 +11,7 @@ class SymbolTable {
   private initBuiltins () {
     this.define(new BuiltinTypeSymbol("entier"));
     this.define(new BuiltinTypeSymbol("réel"));
+    this.define(new BuiltinTypeSymbol("chaîne"));
   }
 
   public define (symbol: BaseSymbol) {

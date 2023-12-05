@@ -8,9 +8,11 @@ programme HelloWorld
 début # ceci est le début du programme
   avec
     a, b : entier
+    c : chaîne
 
   a <- 6
   b <- a + 1
+  c <- "Hello, world!"
 fin HelloWorld
 `.trim();
 
@@ -22,8 +24,6 @@ try {
   // We check the code for any syntax errors.
   const symbol_table_builder = new SymbolTableBuilder();
   symbol_table_builder.visit(tree);
-
-  console.log(symbol_table_builder.symbol_table);
 
   // We interpret the code.
   const interpreter = new Interpreter();
