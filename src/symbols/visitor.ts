@@ -4,11 +4,7 @@ import { VarSymbol } from "./builtins";
 import SymbolTable from "./table";
 
 class SymbolTableBuilder {
-  public symbol_table: SymbolTable;
-
-  constructor () {
-    this.symbol_table = new SymbolTable();
-  }
+  public symbol_table = new SymbolTable();
 
   public visit (node: AST): void {
     switch (node.type) {
@@ -22,15 +18,16 @@ class SymbolTableBuilder {
         return this.visitCompound(node as Compound);
       case "VariableDeclaration":
         return this.visitVariableDeclaration(node as VariableDeclaration);
+      case "Assign":
+        return this.visitAssign(node as Assign);
+      case "Variable":
+        return this.visitVariable(node as Variable);
+      // All those are not handled by the symbol table.
       case "IntegerNumber":
       case "RealNumber":
       case "NoOp":
       case "Type":
         return;
-      case "Assign":
-        return this.visitAssign(node as Assign);
-      case "Variable":
-        return this.visitVariable(node as Variable);
       default:
         throw new Error("Invalid node type.\nNode received: " + node.type);
     }

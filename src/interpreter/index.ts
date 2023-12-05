@@ -17,14 +17,15 @@ class Interpreter {
         return this.visitUnaryOperation(node as UnaryOperation);
       case "Compound":
         return this.visitCompound(node as Compound);
-      case "VariableDeclaration":
-      case "NoOp":
-      case "Type":
-        return;
       case "Assign":
         return this.visitAssign(node as Assign);
       case "Variable":
         return this.visitVariable(node as Variable);
+      // All those are not handled by the interpreter.
+      case "VariableDeclaration":
+      case "NoOp":
+      case "Type":
+        return;
       default:
         throw new Error("Invalid node type.\nNode received: " + node.type);
     }
