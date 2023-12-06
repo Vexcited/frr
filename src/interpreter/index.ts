@@ -1,4 +1,5 @@
 import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import { UndeclaredVariableUsedError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
 
 class Interpreter {
@@ -91,12 +92,14 @@ class Interpreter {
 
   protected visitVariable (node: Variable): number {
     const variableName = node.value;
-    const value = this.GLOBAL_SCOPE[variableName];
 
-    if (typeof value === "undefined") {
-      throw new Error(`Variable ${variableName} is not defined.`);
+    // Check if it was defined in the global scope.
+    // We use the `in` syntax here because a variable can be defined but with a value of `undefined`.
+    if (!(variableName in this.GLOBAL_SCOPE)) {
+      throw new UndeclaredVariableUsedError(variableName);
     }
 
+    const value = this.GLOBAL_SCOPE[variableName];
     return value as number;
   }
 

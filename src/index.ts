@@ -7,14 +7,11 @@ const code = `
 programme HelloWorld
 début # ceci est le début du programme
   avec
-    a, b : entier
     c, d, e : chaîne
 
-  a <- 6
-  b <- a + 1
   c <- "Hello"
   d <- "World"
-  e <- c + ", \\"" + d + "\\" !"
+  e <- d
 fin HelloWorld
 `.trim();
 
