@@ -157,6 +157,12 @@ export class Parser {
     // Requires a line break after `début`.
     this.eat(TokenType.LINE_BREAK);
 
+    // Skip any new lines after `début`.
+    // Newlines may be inserted when writing a comment before
+    // the variable declarations block.
+    // Or people may just want to write their code on the next line.
+    this.skip_newlines();
+
     // Handle the variable declarations if there are any.
     let declarations: VariableDeclaration[] = [];
     if (this.current_token?.type === TokenType.VARIABLE_DECLARATION_BLOCK) {
