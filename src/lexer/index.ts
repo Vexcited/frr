@@ -1,4 +1,4 @@
-import { is_alpha, is_correct_var_char, is_digit, is_newline, is_space } from "../utils/strings";
+import { is_alnum, is_alpha, is_digit, is_newline, is_space } from "../utils/strings";
 
 import {
   DivToken,
@@ -154,11 +154,11 @@ export class Lexer {
   }
 
   /** Handle identifiers and reserved keywords. */
-  private _id(): typeof RESERVED_KEYWORDS[keyof typeof RESERVED_KEYWORDS] | IDToken {
+  private identifier(): typeof RESERVED_KEYWORDS[keyof typeof RESERVED_KEYWORDS] | IDToken {
     let result = "";
 
-    while (this.current_char !== null && is_correct_var_char(this.current_char)) {
-      // We concatenate the string representation of the current integer character.
+    while (this.current_char !== null && is_alnum(this.current_char)) {
+      // We concatenate the string representation of the current character.
       result += this.current_char;
       this.advance();
     }
@@ -200,7 +200,7 @@ export class Lexer {
 
       // If the current character is a letter.
       if (is_alpha(this.current_char)) {
-        return this._id();
+        return this.identifier();
       }
 
       // Handle `<-` token.
