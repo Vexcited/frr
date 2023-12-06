@@ -49,6 +49,8 @@ class Interpreter {
       case TokenType.DIV:
         // Integer division.
         return Math.floor((this.visit(node.left) as number) / (this.visit(node.right) as number));
+      case TokenType.MOD:
+        return (this.visit(node.left) as number) % (this.visit(node.right) as number);
       default:
         throw new Error("Invalid token type.");
     }
@@ -65,7 +67,7 @@ class Interpreter {
       case "MINUS":
         return -this.visit(node.expr);
       default:
-        throw new Error("Invalid token type.");
+        throw new Error("Invalid unary token type.");
     }
   }
 

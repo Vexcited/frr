@@ -62,8 +62,8 @@ export class VariableDeclaration {
   public type = "VariableDeclaration";
 
   constructor (
-    public var_node : Variable,
-    public type_node : Type
+    public var_node: Variable,
+    public type_node: Type
   ) {}
 }
 

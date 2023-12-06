@@ -11,7 +11,7 @@ début # ceci est le début du programme
 
   c <- "Hello"
   d <- "World"
-  e <- d
+  e <- 3 mod 4 * 2
 fin HelloWorld
 `.trim();
 

@@ -3,26 +3,34 @@ export enum TokenType {
   REAL_CONST = "REAL_CONST",
   INTEGER = "INTEGER",
   REAL = "REAL",
+
   PLUS = "PLUS",
   MINUS = "MINUS",
   MUL = "MUL",
   DIV = "DIV",
+  MOD = "MOD",
+
   LPAREN = "LPAREN",
   RPAREN = "RPAREN",
+
   PROGRAM = "PROGRAM",
   BEGIN = "BEGIN",
   END = "END",
-  ASSIGN = "ASSIGN",
+
   LINE_BREAK = "LINE_BREAK",
   COLON = "COLON",
   COMMA = "COMMA",
+
   STRING = "STRING",
   CHAR = "CHAR",
   STRING_CONST = "STRING_CONST",
   CHAR_CONST = "CHAR_CONST",
+
   ID = "ID",
+  ASSIGN = "ASSIGN",
+  VARIABLE_DECLARATION_BLOCK = "VARIABLE_DECLARATION_BLOCK",
+
   EOF = "EOF",
-  VARIABLE_DECLARATION_BLOCK = "VARIABLE_DECLARATION_BLOCK"
 }
 
 class BaseToken<T> {
@@ -77,6 +85,12 @@ export class MulToken extends BaseToken<string> {
 export class DivToken extends BaseToken<string> {
   constructor () {
     super(TokenType.DIV, "/");
+  }
+}
+
+export class ModToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.MOD, "mod");
   }
 }
 
@@ -179,7 +193,7 @@ export class VariableDeclarationBlockToken extends BaseToken<string> {
   }
 }
 
-export type BinaryOperationToken = PlusToken | MinusToken | MulToken | DivToken | LParenToken | RParenToken;
+export type BinaryOperationToken = PlusToken | MinusToken | MulToken | DivToken | ModToken | LParenToken | RParenToken;
 
 export type Token = BinaryOperationToken | (
   | IntegerConstToken

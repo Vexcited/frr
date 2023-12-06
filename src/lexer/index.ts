@@ -24,15 +24,21 @@ import {
   type Token,
   IDToken,
   AssignToken,
-  CommaToken
+  CommaToken,
+  ModToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
+  // Keywords.
   "programme": new ProgramToken(),
   "début": new BeginToken(),
   "avec": new VariableDeclarationBlockToken(),
   "fin": new EndToken(),
 
+  // Operator.
+  "mod": new ModToken(),
+
+  // Types.
   "entier": new IntegerToken(),
   "réel": new RealToken(),
   "chaîne": new StringToken()
@@ -138,14 +144,13 @@ export class Lexer {
     return new StringConstToken(result);
   }
 
-  private peek(): string | null {
-    const peek_pos = this.pos + 1;
+  private peek(into = 1): string | null {
+    const peek_pos = this.pos + into;
     if (peek_pos > this.text.length - 1) {
       return null;
     }
-    else {
-      return this.text[peek_pos];
-    }
+
+    return this.text[peek_pos];
   }
 
   /** Handle identifiers and reserved keywords. */

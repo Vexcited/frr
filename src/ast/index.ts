@@ -193,7 +193,7 @@ export class Parser {
     }
 
     if (this.current_token?.type !== TokenType.END) {
-      throw new Error("Invalid syntax.");
+      throw new Error("Expected \"fin\".");
     }
 
     return results;
@@ -287,11 +287,11 @@ export class Parser {
     return this.variable();
   }
 
-  /** term : factor ((MUL | DIV) factor)* */
+  /** term : factor ((MUL | DIV | MOD) factor)* */
   private term (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
     let node = this.factor();
 
-    while (this.current_token?.type && [TokenType.MUL, TokenType.DIV].includes(this.current_token.type)) {
+    while (this.current_token?.type && [TokenType.MUL, TokenType.DIV, TokenType.MOD].includes(this.current_token.type)) {
       const token = this.current_token as MulToken | DivToken;
 
       // Handle multiplications in the expression.
@@ -301,6 +301,10 @@ export class Parser {
       // Handle integer divisions in the expression.
       else if (token.type === TokenType.DIV) {
         this.eat(TokenType.DIV);
+      }
+      // Handle modulo in the expression.
+      else if (token.type === TokenType.MOD)  {
+        this.eat(TokenType.MOD);
       }
 
       node = new BinaryOperation(node, token, this.factor());
