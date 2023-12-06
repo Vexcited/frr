@@ -7,11 +7,11 @@ const code = `
 programme HelloWorld
 début # ceci est le début du programme
   avec
-    c, d, e : chaîne
+    mon$mod : entier
+    une_chaine : chaîne
 
-  c <- "Hello"
-  d <- "World"
-  e <- 10 mod 2
+  une_chaine <- "Hello"
+  mon$mod <- 9 mod 2
 fin HelloWorld
 `.trim();
 

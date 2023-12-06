@@ -30,6 +30,7 @@ export const is_newline = (character: string): boolean => {
 
 const ALPHA_REGEX = new RegExp("[A-Za-zÀ-ÖØ-öø-ÿ]");
 const ALNUM_REGEX = new RegExp("[A-Za-zÀ-ÖØ-öø-ÿ0-9]");
+const VAR_NAME_REGEX = /[A-Za-zÀ-ÖØ-öø-ÿ0-9_$]/;
 
 /**
  * Tells if the given character is alphanumeric.
@@ -41,6 +42,18 @@ const ALNUM_REGEX = new RegExp("[A-Za-zÀ-ÖØ-öø-ÿ0-9]");
  */
 export const is_alnum = (character: string): boolean => {
   return ALNUM_REGEX.test(character);
+};
+
+/**
+ * Tells if the given character is correct for variable character.
+ * @example
+ * is_alnum("a"); // true
+ * is_alnum("é"); // true
+ * is_alnum("1"); // true
+ * is_alnum(" "); // false
+ */
+export const is_correct_var_char = (character: string): boolean => {
+  return VAR_NAME_REGEX.test(character);
 };
 
 /**
