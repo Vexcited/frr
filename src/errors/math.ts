@@ -1,35 +1,42 @@
 import type { Variable } from "../ast/nodes";
 import { TokenType } from "../lexer/tokens";
 
+/**
+ * Get the full French name of the operation
+ * from its token type.
+ *
+ * Useful for debugging in the error messages.
+ *
+ * When the given token type doesn't match any
+ * operation, an error is thrown.
+ *
+ * TODO: Add a specific class error for the error thrown.
+ */
 const getOperationName = (operation_type: TokenType) => {
-  let operation_name = "";
   switch (operation_type) {
     case TokenType.MINUS:
-      operation_name = "soustraction";
-      break;
+      return "soustraction";
     case TokenType.MUL:
-      operation_name = "multiplication";
-      break;
+      return "multiplication";
     case TokenType.DIV:
-      operation_name = "division";
-      break;
-    default:
-      throw new Error("Opération invalide.");
+      return "division";
+    case TokenType.MOD:
+      return "modulo";
   }
 
-  return operation_name;
+  throw new Error("TypeOperation: Type d'opération non existante.");
 };
 
 export class TypeOperationVariableError extends Error {
   constructor (variable: Variable, operation_type: TokenType) {
     const operation_name = getOperationName(operation_type);
-    super(`TypeOperationVariableError: Une ${operation_name} a été effectué sur une chaîne de caractère contenue dans la variable "${variable.value}".`);
+    super(`TypeOperationVariableError: Une opération illégale (${operation_name}) a été effectuée sur une chaîne de caractères contenue dans la variable « ${variable.value} ».`);
   }
 }
 
 export class TypeOperationError extends Error {
   constructor (operation_type: TokenType) {
     const operation_name = getOperationName(operation_type);
-    super(`TypeOperationError: Une ${operation_name} a été effectué sur une chaîne de caractère.`);
+    super(`TypeOperationError: Une opération illégale (${operation_name}) a été effectuée sur une chaîne de caractères.`);
   }
 }

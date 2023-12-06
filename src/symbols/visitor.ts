@@ -43,18 +43,20 @@ class SymbolTableBuilder {
   private visitBinaryOperation (node: BinaryOperation): void {
     switch (node.operation.type) {
       /**
-       * Concerning the "*", "/" and "-" operations, we can only
+       * Concerning the "*", "/", "-" and "mod" operations, we can only
        * perform them on numbers.
        *
        * Performing them on strings should throw an error.
        */
       case TokenType.MUL:
       case TokenType.DIV:
+      case TokenType.MOD:
       case TokenType.MINUS: {
         const operation = node.operation.type as (
-          | TokenType.MINUS
           | TokenType.MUL
           | TokenType.DIV
+          | TokenType.MOD
+          | TokenType.MINUS
         );
 
         // When one of the operands is a string, we throw an error.
