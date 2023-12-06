@@ -230,6 +230,9 @@ export class Lexer {
         case "/":
           this.advance();
           return new DivToken();
+        case "%":
+          this.advance();
+          return new ModToken();
         case "(":
           this.advance();
           return new LParenToken();
