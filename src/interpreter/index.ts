@@ -34,11 +34,11 @@ class Interpreter {
     }
   }
 
-  protected visitProgram (node: Program): void {
+  private visitProgram (node: Program): void {
     this.visit(node.compound);
   }
 
-  protected visitBinaryOperation (node: BinaryOperation): number {
+  private visitBinaryOperation (node: BinaryOperation): number {
     switch (node.token.type) {
       case TokenType.PLUS:
         return (this.visit(node.left) as number) + (this.visit(node.right) as number);
@@ -56,11 +56,11 @@ class Interpreter {
     }
   }
 
-  protected visitNumber (node: IntegerNumber | RealNumber): number {
+  private visitNumber (node: IntegerNumber | RealNumber): number {
     return node.value;
   }
 
-  protected visitUnaryOperation (node: UnaryOperation): number {
+  private visitUnaryOperation (node: UnaryOperation): number {
     switch (node.token.type) {
       case "PLUS":
         return +this.visit(node.expr);
@@ -71,7 +71,7 @@ class Interpreter {
     }
   }
 
-  protected visitCompound (node: Compound): void {
+  private visitCompound (node: Compound): void {
     // Handle every variable declarations made.
     for (const declaration of node.declared_variables) {
       this.visit(declaration);
@@ -83,16 +83,12 @@ class Interpreter {
     }
   }
 
-  protected visitNoOp (): void {
-    // Do nothing.
-  }
-
-  protected visitAssign (node: Assign): void {
+  private visitAssign (node: Assign): void {
     const variableName = node.left.value;
     this.GLOBAL_SCOPE[variableName] = this.visit(node.right);
   }
 
-  protected visitVariable (node: Variable): number {
+  private visitVariable (node: Variable): number {
     const variableName = node.value;
 
     // Check if it was defined in the global scope.
