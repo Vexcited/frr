@@ -49,6 +49,8 @@ const RESERVED_KEYWORDS = {
 export class Lexer {
   /** Current position in `this.text`. */
   public pos = 0;
+  public pos_line = 1;
+  public pos_column = 1;
   /** Current character in `this.text`. */
   private current_char: string | null = null;
 
@@ -59,6 +61,11 @@ export class Lexer {
 
   /** Advance the 'pos' pointer and set the 'current_char' variable. */
   private advance(): void {
+    if (this.current_char === "\n") {
+      this.pos_line += 1;
+      this.pos_column = 0;
+    }
+
     this.pos += 1;
     if (this.pos > this.text.length - 1) {
       // Indicates end of input.
@@ -66,6 +73,7 @@ export class Lexer {
     }
     else {
       this.current_char = this.text[this.pos];
+      this.pos_column += 1;
     }
   }
 

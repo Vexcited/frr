@@ -70,11 +70,23 @@ export class Program {
 
 export class Procedure {
   public type = "Procedure";
+  public args: VariableDeclaration[] = [];
 
   constructor (
     public name: string,
     public compound: Compound
   ) {}
+}
+
+export class ArgumentVariable {
+  public type = "ArgumentVariable";
+
+  constructor (
+    public var_node: Variable,
+    public type_node: Type,
+    public method: "copy" | "reference"
+  ) {}
+
 }
 
 export class VariableDeclaration {

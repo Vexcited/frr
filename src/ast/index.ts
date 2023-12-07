@@ -14,7 +14,7 @@ import {
   StringConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -40,6 +40,12 @@ export class Parser {
     // Otherwise raise an exception.
     else {
       throw new Error("Invalid syntax.\nCurrent token: " + this.current_token?.type + "\nExpected token: " + token_type);
+    }
+  }
+
+  private skip_newlines (): void {
+    while (this.current_token?.type === TokenType.LINE_BREAK) {
+      this.eat(TokenType.LINE_BREAK);
     }
   }
 
@@ -124,7 +130,7 @@ export class Parser {
     this.eat(TokenType.PROCEDURE);
     const variable_node = this.variable();
     const procedure_name = variable_node.value;
-    const args = [];
+    let args: ArgumentVariable[] = [];
 
     this.eat(TokenType.LPAREN);
     // There's no arguments.
@@ -133,12 +139,7 @@ export class Parser {
     }
     // Parse every arguments.
     else {
-      args.push(this.variable());
-      while (this.current_token?.type === TokenType.COMMA) {
-        this.eat(TokenType.COMMA);
-        args.push(this.variable());
-      }
-
+      args = this.argument_variables();
       this.eat(TokenType.RPAREN);
     }
 
@@ -155,13 +156,38 @@ export class Parser {
     }
 
     const procedure_node = new Procedure(procedure_name, compound);
+    procedure_node.args = args;
+
     return procedure_node;
   }
 
-  private skip_newlines (): void {
-    while (this.current_token?.type === TokenType.LINE_BREAK) {
-      this.eat(TokenType.LINE_BREAK);
+  /**
+   * Any variable is done like "variable_name: type".
+   * You can declare multiple variables at once like "a: entier, b: réel, c: entier".
+   *
+   * There can be a separator ";".
+   * Everything before the separator is a COPY variable,
+   * and everything after the separator is a REFERENCE variable.
+   */
+  private argument_variables (): Array<ArgumentVariable> {
+    const current_method: "copy" | "reference" = "copy";
+    const var_nodes = [this.argument_variable(current_method)];
+
+    while (this.current_token?.type === TokenType.COMMA) {
+      this.eat(TokenType.COMMA);
+      var_nodes.push(this.argument_variable(current_method));
     }
+
+    return var_nodes;
+  }
+
+  /** argument_variable: "VARIABLE : TYPE" */
+  private argument_variable(current_method: "copy" | "reference"): ArgumentVariable {
+    const var_node = this.variable();
+    this.eat(TokenType.COLON);
+    const type_node = this.type_spec();
+
+    return new ArgumentVariable(var_node, type_node, current_method);
   }
 
   /**

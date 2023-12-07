@@ -4,7 +4,7 @@ import Interpreter from "./interpreter";
 import SymbolTableBuilder from "./symbols/visitor";
 
 const code = `
-procédure coucou (hey, ho)
+procédure coucou (hey: entier, ho: chaîne)
 début
 
 fin coucou
