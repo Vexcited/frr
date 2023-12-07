@@ -1,9 +1,9 @@
 import { BaseSymbol, BuiltinTypeSymbol } from "./builtins";
 
-class SymbolTable {
+class ScopedSymbolTable {
   private symbols: Map<string, BaseSymbol>;
 
-  constructor () {
+  constructor (public scope_name: string) {
     this.symbols = new Map();
     this.initBuiltins();
   }
@@ -23,4 +23,4 @@ class SymbolTable {
   }
 }
 
-export default SymbolTable;
+export default ScopedSymbolTable;

@@ -52,7 +52,7 @@ export class Lexer {
   public pos_line = 1;
   public pos_column = 1;
   /** Current character in `this.text`. */
-  private current_char: string | null = null;
+  public current_char: string | null = null;
 
   constructor (private text: string) {
     this.text = text;

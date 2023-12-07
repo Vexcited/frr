@@ -78,6 +78,16 @@ export class Procedure {
   ) {}
 }
 
+export class ProcedureCall {
+  public type = "ProcedureCall";
+
+  constructor (
+    public name: string,
+    public args: (BinaryOperation | IntegerNumber | UnaryOperation | Variable)[],
+    public token: IDToken
+  ) {}
+}
+
 export class ArgumentVariable {
   public type = "ArgumentVariable";
 

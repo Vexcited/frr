@@ -16,11 +16,17 @@ export class BuiltinTypeSymbol extends BaseSymbol {
 }
 
 export class VarSymbol extends BaseSymbol {
-  constructor (name: string, type: string) {
-    super(name, type);
+  constructor (name: string, type: BuiltinTypeSymbol) {
+    super(name, type.name);
   }
 
   public toString () {
     return `<${this.name}:${this.type}>`;
+  }
+}
+
+export class ProcedureSymbol extends BaseSymbol {
+  constructor (name: string, public args: VarSymbol[] = []) {
+    super(name);
   }
 }

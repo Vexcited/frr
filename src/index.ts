@@ -1,12 +1,11 @@
 import { Lexer } from "./lexer";
 import { Parser } from "./ast";
 import Interpreter from "./interpreter";
-import SymbolTableBuilder from "./symbols/visitor";
+import SemanticAnalyzer from "./symbols/visitor";
 
 const code = `
 procédure coucou (hey: entier, ho: chaîne)
 début
-
 fin coucou
 
 programme HelloWorld
@@ -16,7 +15,9 @@ début # ceci est le début du programme
     une_chaîne : chaîne
 
   une_chaîne <- "Hello"
-  mon_mod    <- 9 mod 2
+  mon_mod    <- 12
+
+  coucou(mon_mod, mon_mod)
 fin HelloWorld
 `.trim();
 
@@ -26,7 +27,7 @@ try {
   const tree = parser.parse();
 
   // We check the code for any syntax errors.
-  const symbol_table_builder = new SymbolTableBuilder();
+  const symbol_table_builder = new SemanticAnalyzer();
   symbol_table_builder.visit(tree);
 
   // We interpret the code.

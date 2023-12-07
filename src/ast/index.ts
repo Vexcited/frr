@@ -14,7 +14,7 @@ import {
   StringConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -329,7 +329,13 @@ export class Parser {
    * Handles a statement in a program (TODO: or a function or procedure).
    */
   private statement (): AST {
-    if (this.current_token?.type === TokenType.ID) {
+    if ( // Handle procedure calls.
+      this.current_token?.type === TokenType.ID
+      && this.lexer.current_char === "("
+    ) {
+      return this.procedure_call_statement();
+    }
+    else if (this.current_token?.type === TokenType.ID) {
       return this.assignment_statement();
     }
     else {
@@ -350,6 +356,33 @@ export class Parser {
     const right = this.expr();
 
     return new Assign(left, token, right);
+  }
+
+  /** procedure_call_statement : ID LPAREN (expr (COMMA expr)*)? RPAREN */
+  private procedure_call_statement (): ProcedureCall {
+    const token = this.current_token as IDToken;
+
+    const procedure_name = token.value;
+    this.eat(TokenType.ID);
+    this.eat(TokenType.LPAREN);
+
+    const args: (
+      BinaryOperation | IntegerNumber | UnaryOperation | Variable
+    )[] = [];
+
+    if (this.current_token?.type !== TokenType.RPAREN) {
+      args.push(this.expr());
+    }
+
+    while (this.current_token?.type === TokenType.COMMA) {
+      this.eat(TokenType.COMMA);
+      args.push(this.expr());
+    }
+
+    this.eat(TokenType.RPAREN);
+
+    const node = new ProcedureCall(procedure_name, args, token);
+    return node;
   }
 
   /**

@@ -12,8 +12,9 @@ class Interpreter {
       case "Program":
         return this.visitProgram(node as Program);
       case "Procedure":
-        console.log("Procedure:", node);
-        return;
+        return; // TODO
+      case "ProcedureCall":
+        return; // TODO
       case "BinaryOperation":
         return this.visitBinaryOperation(node as BinaryOperation);
       case "IntegerNumber":
