@@ -1,4 +1,4 @@
-import type { AST, Assign, BinaryOperation, Compound, IntegerNumber, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import type { AST, Assign, BinaryOperation, Compound, GlobalScope, IntegerNumber, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
 import { UndeclaredVariableUsedError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
 
@@ -7,8 +7,13 @@ class Interpreter {
 
   public visit (node: AST) {
     switch (node.type) {
+      case "GlobalScope":
+        return this.visitGlobalScope(node as GlobalScope);
       case "Program":
         return this.visitProgram(node as Program);
+      case "Procedure":
+        console.log("Procedure:", node);
+        return;
       case "BinaryOperation":
         return this.visitBinaryOperation(node as BinaryOperation);
       case "IntegerNumber":
@@ -32,6 +37,16 @@ class Interpreter {
       default:
         throw new Error("Invalid node type.\nNode received: " + node.type);
     }
+  }
+
+  private visitGlobalScope (node: GlobalScope): void {
+    // Handle procedures declarations.
+    for (const procedure of node.procedures) {
+      this.visit(procedure);
+    }
+
+    // Finally, handle the main program.
+    this.visit(node.program);
   }
 
   private visitProgram (node: Program): void {

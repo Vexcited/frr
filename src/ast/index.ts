@@ -14,7 +14,7 @@ import {
   StringConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -43,6 +43,61 @@ export class Parser {
     }
   }
 
+  /**
+   * The global scope is the file/script itself.
+   *
+   * Can contain multiple functions and procedures,
+   * but will also contain the main program.
+   *
+   * There can only be ONE program, but multiple functions and procedures.
+   *
+   * global_scope : program | function | procedure
+   */
+  private global_scope (): GlobalScope {
+    if (!this.current_token) {
+      throw new Error("Empty file");
+    }
+
+    let main_program: Program | undefined;
+    const procedures: Procedure[] = [];
+
+    this.skip_newlines(); // Skip every new lines before any scope token.
+
+    const scope_tokens = [
+      TokenType.PROCEDURE,
+      TokenType.PROGRAM
+    ];
+
+    while (scope_tokens.includes(this.current_token.type)) {
+      // Handle main program.
+      if (this.current_token?.type === TokenType.PROGRAM) {
+        if (main_program) {
+          throw new Error("Il ne peut y avoir qu'un seul programme principal.");
+        }
+
+        main_program = this.program();
+      }
+      // Handle procedures.
+      else if (this.current_token?.type === TokenType.PROCEDURE) {
+        procedures.push(this.procedure());
+      }
+      else {
+        throw new Error("Invalid scope token.");
+      }
+
+      // Skip new lines after the scope token.
+      this.skip_newlines();
+    }
+
+    if (!main_program) {
+      throw new Error("Il n'y a pas de programme principal.");
+    }
+
+    const node = new GlobalScope(main_program);
+    node.procedures = procedures;
+    return node;
+  }
+
   /** program: programme `variable` compound_statement `variable` */
   private program () {
     this.eat(TokenType.PROGRAM);
@@ -62,6 +117,45 @@ export class Parser {
 
     const program_node = new Program(program_name, compound);
     return program_node;
+  }
+
+  /** procedure: procédure `variable` ... */
+  private procedure () {
+    this.eat(TokenType.PROCEDURE);
+    const variable_node = this.variable();
+    const procedure_name = variable_node.value;
+    const args = [];
+
+    this.eat(TokenType.LPAREN);
+    // There's no arguments.
+    if (this.current_token?.type === TokenType.RPAREN) {
+      this.eat(TokenType.RPAREN);
+    }
+    // Parse every arguments.
+    else {
+      args.push(this.variable());
+      while (this.current_token?.type === TokenType.COMMA) {
+        this.eat(TokenType.COMMA);
+        args.push(this.variable());
+      }
+
+      this.eat(TokenType.RPAREN);
+    }
+
+    // We expect a line break after the procedure definition.
+    this.eat(TokenType.LINE_BREAK);
+
+    const compound = this.compound_statement();
+
+    // Check if the program name matches.
+    // Otherwise raise an exception.
+    const end_variable_node = this.variable();
+    if (end_variable_node.value !== procedure_name) {
+      throw new Error(`Le nom de la procédure ne correspond pas à celui assigné au début (${procedure_name}).\nVérifiez que vous avez bien écrit "fin ${procedure_name}".\nValeur reçu: "fin ${end_variable_node.value}"`);
+    }
+
+    const procedure_node = new Procedure(procedure_name, compound);
+    return procedure_node;
   }
 
   private skip_newlines (): void {
@@ -346,6 +440,6 @@ export class Parser {
   }
 
   public parse (): AST {
-    return this.program();
+    return this.global_scope();
   }
 }

@@ -25,11 +25,13 @@ import {
   IDToken,
   AssignToken,
   CommaToken,
-  ModToken
+  ModToken,
+  ProcedureToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
   // Keywords.
+  "procédure": new ProcedureToken(),
   "programme": new ProgramToken(),
   "début": new BeginToken(),
   "avec": new VariableDeclarationBlockToken(),

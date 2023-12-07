@@ -13,6 +13,7 @@ export enum TokenType {
   LPAREN = "LPAREN",
   RPAREN = "RPAREN",
 
+  PROCEDURE = "PROCEDURE",
   PROGRAM = "PROGRAM",
   BEGIN = "BEGIN",
   END = "END",
@@ -109,6 +110,12 @@ export class RParenToken extends BaseToken<string> {
 export class ProgramToken extends BaseToken<string> {
   constructor () {
     super(TokenType.PROGRAM, "programme");
+  }
+}
+
+export class ProcedureToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.PROCEDURE, "procédure");
   }
 }
 

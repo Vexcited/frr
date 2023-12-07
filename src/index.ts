@@ -4,14 +4,19 @@ import Interpreter from "./interpreter";
 import SymbolTableBuilder from "./symbols/visitor";
 
 const code = `
+procédure coucou (hey, ho)
+début
+
+fin coucou
+
 programme HelloWorld
 début # ceci est le début du programme
   avec
-    mon_mod : entier
-    une_chaine : chaîne
+    mon_mod    : entier
+    une_chaîne : chaîne
 
-  une_chaine <- "Hello"
-  mon_mod <- 9 mod 2
+  une_chaîne <- "Hello"
+  mon_mod    <- 9 mod 2
 fin HelloWorld
 `.trim();
 

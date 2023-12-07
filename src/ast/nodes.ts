@@ -49,8 +49,27 @@ export class UnaryOperation {
   }
 }
 
+export class GlobalScope {
+  public type = "GlobalScope";
+  public functions: unknown[] = [];
+  public procedures: Procedure[] = [];
+
+  constructor (
+    public program: Program
+  ) {}
+}
+
 export class Program {
   public type = "Program";
+
+  constructor (
+    public name: string,
+    public compound: Compound
+  ) {}
+}
+
+export class Procedure {
+  public type = "Procedure";
 
   constructor (
     public name: string,

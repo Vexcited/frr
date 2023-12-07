@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, Compound, Program, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, Compound, GlobalScope, Procedure, Program, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
@@ -10,8 +10,12 @@ class SymbolTableBuilder {
 
   public visit (node: AST) {
     switch (node.type) {
+      case "GlobalScope":
+        return this.visitGlobalScope(node as GlobalScope);
       case "Program":
         return this.visitProgram(node as Program);
+      case "Procedure":
+        return this.visitProcedure(node as Procedure);
       case "BinaryOperation":
         return this.visitBinaryOperation(node as BinaryOperation);
       case "UnaryOperation":
@@ -36,7 +40,21 @@ class SymbolTableBuilder {
     }
   }
 
+  private visitGlobalScope (node: GlobalScope): void {
+    // Handle procedures declarations.
+    for (const procedure of node.procedures) {
+      this.visit(procedure);
+    }
+
+    // Finally, handle the main program.
+    this.visit(node.program);
+  }
+
   private visitProgram (node: Program): void {
+    this.visit(node.compound);
+  }
+
+  private visitProcedure (node: Procedure): void {
     this.visit(node.compound);
   }
 
