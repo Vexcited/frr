@@ -105,12 +105,19 @@ class SemanticAnalyzer {
 
     // Exiting the procedure scope.
     this.current_scope = null;
+
+    // We set the compound of the procedure symbol,
+    // so we can easily use it in the interpreter.
+    procedure_symbol.compound_from_node = node.compound;
   }
 
   private visitProcedureCall (node: ProcedureCall): void {
     for (const arg of node.args) {
       this.visit(arg);
     }
+
+    const procedure_symbol = this.global_scope.lookup(node.name) as ProcedureSymbol;
+    node.symbol_from_syntax_analyzer = procedure_symbol;
   }
 
   private visitBinaryOperation (node: BinaryOperation): void {

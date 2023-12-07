@@ -17,7 +17,7 @@ début # ceci est le début du programme
   une_chaîne <- "Hello"
   mon_mod    <- 12
 
-  coucou(mon_mod, mon_mozd)
+  coucou(mon_mod, une_chaîne)
 fin HelloWorld
 `.trim();
 
@@ -32,9 +32,7 @@ try {
 
   // We interpret the code.
   const interpreter = new Interpreter();
-  const global_scope = interpreter.interpret(tree);
-
-  console.log(global_scope);
+  interpreter.interpret(tree);
 }
 catch (error) {
   if (error instanceof Error) {

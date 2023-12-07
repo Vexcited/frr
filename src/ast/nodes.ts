@@ -1,4 +1,5 @@
 import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken } from "../lexer/tokens";
+import { ProcedureSymbol } from "../symbols/builtins";
 
 export class BinaryOperation {
   public type = "BinaryOperation";
@@ -80,6 +81,9 @@ export class Procedure {
 
 export class ProcedureCall {
   public type = "ProcedureCall";
+
+  /** The symbol of the procedure being called. */
+  public symbol_from_syntax_analyzer?: ProcedureSymbol;
 
   constructor (
     public name: string,
