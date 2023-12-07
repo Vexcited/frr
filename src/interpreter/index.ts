@@ -3,7 +3,7 @@ import { UndeclaredVariableUsedError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
 
 class Interpreter {
-  public GLOBAL_SCOPE: Record<string, unknown> = {};
+  public GLOBAL_MEMORY: Record<string, unknown> = {};
 
   public visit (node: AST) {
     switch (node.type) {
@@ -101,7 +101,7 @@ class Interpreter {
 
   private visitAssign (node: Assign): void {
     const variableName = node.left.value;
-    this.GLOBAL_SCOPE[variableName] = this.visit(node.right);
+    this.GLOBAL_MEMORY[variableName] = this.visit(node.right);
   }
 
   private visitVariable (node: Variable): number {
@@ -109,11 +109,11 @@ class Interpreter {
 
     // Check if it was defined in the global scope.
     // We use the `in` syntax here because a variable can be defined but with a value of `undefined`.
-    if (!(variableName in this.GLOBAL_SCOPE)) {
+    if (!(variableName in this.GLOBAL_MEMORY)) {
       throw new UndeclaredVariableUsedError(variableName);
     }
 
-    const value = this.GLOBAL_SCOPE[variableName];
+    const value = this.GLOBAL_MEMORY[variableName];
     return value as number;
   }
 
@@ -123,7 +123,7 @@ class Interpreter {
 
   public interpret (tree: AST) {
     this.visit(tree);
-    return this.GLOBAL_SCOPE;
+    return this.GLOBAL_MEMORY;
   }
 }
 

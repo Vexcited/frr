@@ -17,7 +17,7 @@ début # ceci est le début du programme
   une_chaîne <- "Hello"
   mon_mod    <- 12
 
-  coucou(mon_mod, mon_mod)
+  coucou(mon_mod, mon_mozd)
 fin HelloWorld
 `.trim();
 
