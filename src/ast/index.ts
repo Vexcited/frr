@@ -326,15 +326,19 @@ export class Parser {
   }
 
   /**
-   * Handles a statement in a program (TODO: or a function or procedure).
+   * Handles a statement in a program. A statement can be:
+   * - assignments
+   * - procedure calls **with parenthesis**
+   * - builtin procedure calls **that doesn't require parenthesis**
    */
   private statement (): AST {
-    if (this.current_token?.type === TokenType.ID && this.lexer.peekAfterWhiteSpaces() === "<") {
-      return this.assignment_statement();
-    }
-    else if ( // Handle procedure calls.
-      this.current_token?.type === TokenType.ID
-    ) {
+    if (this.current_token?.type === TokenType.ID) {
+      // We handle the assignment statement,
+      // should be checked before the procedure call statement.
+      if (this.lexer.peekAfterWhiteSpaces() === "<") {
+        return this.assignment_statement();
+      }
+
       // Only those two procedures don't require parenthesis.
       if (this.current_token.value === "afficher" || this.current_token.value === "saisir") {
         return this.procedure_call_statement();
