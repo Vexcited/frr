@@ -132,18 +132,43 @@ export class Lexer {
     this.advance();
 
     while (this.current_char !== null) {
-      if (this.current_char === "\"") {
-        const char_before = this.text[this.pos - 1];
+      // When `\` is encountered, we check the next character.
+      if (this.current_char === "\\") {
+        const next_char = this.text[this.pos + 1];
 
-        // Check if it was escaped.
-        if (char_before !== "\\") {
-          break;
+        // Check for common escape sequences
+        if (next_char !== undefined) {
+          if (next_char === "n") {
+            result += "\n"; // newline
+            this.advance(); // skip the 'n'
+          }
+          else if (next_char === "\"") {
+            result += "\""; // escaped double quote
+            this.advance(); // skip the '\"'
+          }
+          else {
+            // Handle other escape sequences as needed
+            // For simplicity, assuming that unknown escape sequences are treated as the literal character
+            result += "\\";
+          }
+        }
+        else {
+          // Handle case where '\' is at the end of the string
+          result += "\\";
         }
       }
+      // When `"`, we check the previous character.
+      else if (this.current_char === "\"") {
+        const char_before = this.text[this.pos - 1];
 
-      if (this.current_char !== "\\") {
-        result += this.current_char;
+        // Check for unescaped quote: end of the string
+        if (char_before !== "\\") break;
+        // If escaped, we add the quote to the result.
+        else result += "\\\"";
       }
+
+      // When regular character, add to result.
+      else result += this.current_char;
 
       this.advance();
     }
