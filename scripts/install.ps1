@@ -107,7 +107,7 @@ if ($PSVersionTable.PSVersion.Major -ge $PSMinVersion) {
   Write-Done
   
   Write-Log -ActionText "RENOMMAGE" -Texts $frrCliDir, " 'frr-win.exe' en 'frr.exe' " -Emphasized $true, $false
-  Rename-Item -Path "${frrCliDir}\frr-win.exe" -NewName "frr.exe"
+  Move-Item -Path "${frrCliDir}\frr-win.exe" -Destination "${frrCliDir}\frr.exe" -Force
   Write-Done
   
   # Get Path environment variable for the current user.
