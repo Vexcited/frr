@@ -4,20 +4,18 @@ import Interpreter from "./interpreter";
 import SemanticAnalyzer from "./symbols/visitor";
 
 const code = `
-procédure coucou (hey: entier, ho: chaîne)
-début
-fin coucou
-
 programme HelloWorld
 début # ceci est le début du programme
   avec
     mon_mod    : entier
     une_chaîne : chaîne
 
-  une_chaîne <- "Hello"
-  mon_mod    <- 12
+  afficher "mon_mod = "
+  saisir (mon_mod)
+  afficher "chaîne = "
+  saisir une_chaîne
 
-  coucou(mon_mod, une_chaîne)
+  afficher mon_mod, une_chaîne, "\n"
 fin HelloWorld
 `.trim();
 

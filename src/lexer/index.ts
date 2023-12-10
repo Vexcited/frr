@@ -163,6 +163,20 @@ export class Lexer {
     return this.text[peek_pos];
   }
 
+  public peekAfterWhiteSpaces(): string | null {
+    let peek_pos = this.pos + 1;
+
+    while (is_space(this.text[peek_pos])) {
+      if (peek_pos > this.text.length - 1) {
+        return null;
+      }
+
+      peek_pos++;
+    }
+
+    return this.text[peek_pos];
+  }
+
   /** Handle identifiers and reserved keywords. */
   private identifier(): typeof RESERVED_KEYWORDS[keyof typeof RESERVED_KEYWORDS] | IDToken {
     let result = "";

@@ -29,7 +29,13 @@ export class ProcedureSymbol extends BaseSymbol {
    */
   public compound_from_node?: Compound;
 
-  constructor (name: string,public args: VarSymbol[] = []) {
+  constructor (name: string, public args: VarSymbol[] = []) {
+    super(name);
+  }
+}
+
+export class BuiltinProcedureSymbol extends BaseSymbol {
+  constructor (name: string, public args: VarSymbol[] = []) {
     super(name);
   }
 }

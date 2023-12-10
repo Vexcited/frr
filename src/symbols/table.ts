@@ -1,4 +1,5 @@
-import { BaseSymbol, BuiltinTypeSymbol } from "./builtins";
+import { BaseSymbol, BuiltinTypeSymbol, BuiltinProcedureSymbol } from "./builtins";
+import { builtinProcedures } from "../interpreter/builtins";
 
 class ScopedSymbolTable {
   private symbols: Map<string, BaseSymbol>;
@@ -12,6 +13,10 @@ class ScopedSymbolTable {
     this.define(new BuiltinTypeSymbol("entier"));
     this.define(new BuiltinTypeSymbol("réel"));
     this.define(new BuiltinTypeSymbol("chaîne"));
+
+    for (const builtinProcedureName of Object.keys(builtinProcedures)) {
+      this.define(new BuiltinProcedureSymbol(builtinProcedureName));
+    }
   }
 
   public define (symbol: BaseSymbol) {

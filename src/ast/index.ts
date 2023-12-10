@@ -329,18 +329,24 @@ export class Parser {
    * Handles a statement in a program (TODO: or a function or procedure).
    */
   private statement (): AST {
-    if ( // Handle procedure calls.
-      this.current_token?.type === TokenType.ID
-      && this.lexer.current_char === "("
-    ) {
-      return this.procedure_call_statement();
-    }
-    else if (this.current_token?.type === TokenType.ID) {
+    if (this.current_token?.type === TokenType.ID && this.lexer.peekAfterWhiteSpaces() === "<") {
       return this.assignment_statement();
     }
-    else {
-      return this.empty();
+    else if ( // Handle procedure calls.
+      this.current_token?.type === TokenType.ID
+    ) {
+      // Only those two procedures don't require parenthesis.
+      if (this.current_token.value === "afficher" || this.current_token.value === "saisir") {
+        return this.procedure_call_statement();
+      }
+
+      // Otherwise, we expect parenthesis.
+      if (this.lexer.peekAfterWhiteSpaces() === "(") {
+        return this.procedure_call_statement();
+      }
     }
+
+    return this.empty();
   }
 
   /** assignment_statement : variable <- expr */
@@ -364,7 +370,17 @@ export class Parser {
 
     const procedure_name = token.value;
     this.eat(TokenType.ID);
-    this.eat(TokenType.LPAREN);
+
+    /**
+     * `afficher` and `saisir` are the only procedures
+     * that don't require parenthesis.
+     *
+     * Even though, you can still use parenthesis with them.
+     */
+    const shouldSkipParenthesis = procedure_name === "saisir" || procedure_name === "afficher";
+
+    if (!shouldSkipParenthesis || (shouldSkipParenthesis && this.current_token?.type === TokenType.LPAREN))
+      this.eat(TokenType.LPAREN);
 
     const args: (
       BinaryOperation | IntegerNumber | UnaryOperation | Variable
@@ -379,7 +395,8 @@ export class Parser {
       args.push(this.expr());
     }
 
-    this.eat(TokenType.RPAREN);
+    if (!shouldSkipParenthesis || (shouldSkipParenthesis && this.current_token?.type === TokenType.RPAREN))
+      this.eat(TokenType.RPAREN);
 
     const node = new ProcedureCall(procedure_name, args, token);
     return node;
