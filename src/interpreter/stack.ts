@@ -30,6 +30,9 @@ export class CallStack {
     this.activation_records.pop();
   }
 
+  /**
+   * Returns the current activation record.
+   */
   public peek (): ActivationRecord {
     return this.activation_records[this.activation_records.length - 1];
   }

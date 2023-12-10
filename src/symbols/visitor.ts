@@ -222,12 +222,13 @@ class SemanticAnalyzer {
    */
   private visitVariable (node: Variable): VarSymbol {
     const var_name = node.value;
-    const var_symbol = this.current_scope!.lookup(var_name);
+    const var_symbol = this.current_scope!.lookup(var_name) as VarSymbol | undefined;
 
     if (!var_symbol) {
       throw new UndeclaredVariableTypeError(var_name);
     }
 
+    node.symbol_from_syntax_analyzer = var_symbol;
     return var_symbol;
   }
 }

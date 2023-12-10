@@ -1,5 +1,5 @@
 import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken } from "../lexer/tokens";
-import { ProcedureSymbol } from "../symbols/builtins";
+import { ProcedureSymbol, VarSymbol } from "../symbols/builtins";
 
 export class BinaryOperation {
   public type = "BinaryOperation";
@@ -142,6 +142,9 @@ export class Assign {
 export class Variable {
   public type = "Variable";
   public value: string;
+
+  /** The symbol of the procedure being called. */
+  public symbol_from_syntax_analyzer?: VarSymbol;
 
   constructor (public token: IDToken) {
     this.value = token.value;
