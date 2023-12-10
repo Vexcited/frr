@@ -12,5 +12,11 @@
     "javascript"
   ],
 
-  "cSpell.language": "en,fr"
+  "cSpell.language": "en,fr",
+
+  "markdownlint.config": {
+    "MD024": {
+      "siblings_only": true
+    }
+  }
 }

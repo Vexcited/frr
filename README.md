@@ -15,13 +15,52 @@ Those bundles aren't made with Bun since it's not supported on Windows yet.
 
 Instead, I use `pkg` from Vercel to bundle the code with a Node.js binary.
 
-- TODO: Make Windows bundles
+#### Automated
+
+You can also use the automated script to download the latest build and add it to your PATH.
+
+Simply open a PowerShell terminal and run the following command:
+
+```ps1
+iwr -useb https://raw.githubusercontent.com/Vexcited/frr/main/scripts/install.ps1 | iex
+```
+
+#### Manual
+
+You can download the latest build from GitHub Actions. It's a `.zip` file containing the `.exe` binary. Just add it to your PATH.
+
+[Download the latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/windows-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392)
 
 ### Linux and macOS
 
 Those binaries are compiled with Bun.
 
-- TODO: Make Linux and macOS bundles
+#### Automated
+
+You can also use the automated script to download the latest build and add it to your PATH.
+
+Simply open a terminal and run the following command:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Vexcited/frr/main/scripts/install.sh | sh
+```
+
+#### Manual
+
+You can download the latest build from GitHub Actions. It's a `.zip` file containing the binary as `frr-unix`.
+Just add it to your PATH.
+
+- [Linux latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/ubuntu-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392)
+- [macOS latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/macos-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392)
+
+## Usage
+
+Running `frr` will give you the usage instructions.
+
+```console
+$ frr
+Utilisation: frr <destination/fichier/script.fr>
+```
 
 ## Examples
 
