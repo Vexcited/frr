@@ -1,8 +1,8 @@
-# French Pseudo-code
+# French Pseudo-code (`frr`)
 
 ## Install
 
-<!-- This will be a CLI tool, so you can install it with the provided binaries in the Releases section. -->
+Binaries are called `frr` (stands for `FRench Runner`, or "frère", depending on the one you prefer)
 
 ### Windows
 
@@ -67,7 +67,7 @@ Those types are **case sensitive**, so always in lowercase.
 | ---- | ---------- | --------------- |
 | `entier` | `int` | v0.1.0 |
 | `réel` | `float` | v0.1.0 |
-| `caractère` | `char` | *Not implemented* |
+| `caractère` (alias: `car`) | `char` | *Not implemented* |
 | `chaîne` | `str` in Python | v0.1.0 |
 | `booléen` | `bool` in Python | *Not implemented* |
 
@@ -90,6 +90,7 @@ début
 d : chaîne # Also works
     e : booléen
     f, g, h : caractère # You can also declare multiple variables on the same line.
+    # Same as above -> f, g, h : car 
 fin Déclarations
 ```
 
@@ -99,13 +100,14 @@ fin Déclarations
 
 #### `afficher`
 
-> **Note:** This is a built-in function not implemented yet.
-
 To print something in the console, use the `afficher` keyword.
+
+Note that **there's no newline at the end of the printed text**.
+So if you want to print a newline, you have to do it manually.
 
 ```fr-pc
 # This is the "official" way to do it.
-afficher "Hello, World!"
+afficher "Hello, World!\n"
 
 # Otherwise, those also work.
 afficher("Hello, World!")
@@ -113,20 +115,23 @@ afficher ("Hello, World!")
 ```
 
 You can pass multiple arguments to `afficher`.
+Each argument will be printed with a space between them.
 
 ```fr-pc
-afficher "Hello", " ", "World!"
+afficher "Hello", "World!" # >>> Hello World!
 ```
 
 You can also pass variables, expressions.
 
 ```fr-pc
-afficher "Hello " + username
-afficher "Réponse: ", 42 + 2
+username <- "Vexcited"
+afficher "Hello " + username # >>> Hello Vexcited
+afficher "Réponse:", 21 * 2  # >>> Réponse: 42
 ```
 
 The following types are allowed in the arguments:
 
+- `caractère` (alias: `car`)
 - `chaîne`
 - `entier`
 - `réel`
@@ -136,7 +141,7 @@ The following types are allowed in the arguments:
 ### Requirements
 
 - [Bun](https://bun.sh)
-- [WSL2](https://learn.microsoft.com/windows/wsl/install) (Windows only, since no Bun support for Windows yet)
+- [Node.js](https://nodejs.org) (if you're a Windows user)
 
 ## Getting started
 
@@ -145,7 +150,7 @@ The following types are allowed in the arguments:
 git clone https://github.com/Vexcited/french-pseudocode && cd french-pseudocode
 
 # Install dependencies
-bun install # or `npm install` with Node.js
+bun install # or `pnpm install` with Node.js
 ```
 
 ## Resources

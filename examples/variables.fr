@@ -6,4 +6,5 @@ début
   a <- ma_variable + 2
 
   afficher a
+  afficher "\n"
 fin Variables
