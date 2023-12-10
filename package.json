@@ -1,15 +1,16 @@
 {
-  "name": "french-pseudocode",
-  "version": "0.1.0",
+  "name": "frr",
+  "version": "1.0.0",
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
     "bun:run": "bun run ./src/cli.ts",
     "node:run": "tsx ./src/cli.ts",
     "bun:compile": "bun build ./src/cli.ts --compile --minify --outfile=frr-unix",
-    "node:compile": "tsup-node ./src/cli.ts --format esm && pkg --compress GZip -t node18-win -o frr-win ./dist/cli.js"
+    "node:compile": "tsup-node ./src/cli.ts --format cjs --minify && tsx ./scripts/cook-windows-binary.ts"
   },
   "devDependencies": {
+    "@angablue/exe": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "bun-types": "^1.0.16",
