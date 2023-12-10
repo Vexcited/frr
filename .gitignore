@@ -22,7 +22,7 @@ frr-unix
 frr-win.exe
 
 # Any other package manager lockfile 
-# is ignored, we main `bun`.
+# is ignored, we main `pnpm` for Bun and Node.js support.
 package-lock.json
-pnpm-lock.yaml
 yarn.lock
+bun.lockb
