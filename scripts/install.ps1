@@ -90,7 +90,7 @@ if ($PSVersionTable.PSVersion.Major -ge $PSMinVersion) {
     
   # Download latest action build.
   $zipFile = "${frrCliDir}\frr-cli-windows.zip"
-  $downloadUri = "https://nightly.link/Vexcited/frr/workflows/binary/main/windows-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392"
+  $downloadUri = "https://nightly.link/Vexcited/frr/workflows/binary/main/windows-latest.zip"
   Write-Log -ActionText "RECEPTION" -Texts $downloadUri -Emphasized $true
   Invoke-WebRequest -Uri $downloadUri -UseBasicParsing -OutFile $zipFile
   Write-Done

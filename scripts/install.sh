@@ -40,7 +40,7 @@ command -v curl >/dev/null || { log "curl isn't installed\!" >&2; exit 1; }
 command -v unzip >/dev/null || { log "unzip isn't installed\!" >&2; exit 1; }
 command -v grep >/dev/null || { log "grep isn't installed\!" >&2; exit 1; }
 
-download_uri=https://nightly.link/Vexcited/frr/workflows/binary/main/$target.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392
+download_uri=https://nightly.link/Vexcited/frr/workflows/binary/main/$target.zip
 
 # locations
 frr_cli_install="$HOME/.frr-cli"

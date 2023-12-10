@@ -29,7 +29,7 @@ iwr -useb https://raw.githubusercontent.com/Vexcited/frr/main/scripts/install.ps
 
 You can download the latest build from GitHub Actions. It's a `.zip` file containing the `.exe` binary. Just add it to your PATH.
 
-[Download the latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/windows-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392)
+[Download the latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/windows-latest.zip)
 
 ### Linux and macOS
 
@@ -50,8 +50,8 @@ curl -fsSL https://raw.githubusercontent.com/Vexcited/frr/main/scripts/install.s
 You can download the latest build from GitHub Actions. It's a `.zip` file containing the binary as `frr-unix`.
 Just add it to your PATH.
 
-- [Linux latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/ubuntu-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392)
-- [macOS latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/macos-latest.zip?h=b872fcb2c38640e7c710a898d24fcace8afef392)
+- [Linux latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/ubuntu-latest.zip)
+- [macOS latest build](https://nightly.link/Vexcited/frr/workflows/binary/main/macos-latest.zip)
 
 ## Usage
 
