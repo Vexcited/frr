@@ -1,4 +1,4 @@
 programme HelloWorld
 début
-  afficher "Bonjour, Monde !"
+  afficher "Bonjour, \"Monde\" !\n"
 fin HelloWorld
