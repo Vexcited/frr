@@ -1,0 +1,59 @@
+name: "binaries: frr"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - uses: oven-sh/setup-bun@v1
+        if: matrix.os != 'windows-latest'
+        with:
+          bun-version: latest
+
+      - name: Install pnpm dependencies
+        run: pnpm install
+
+      - name: Build for Unix
+        if: matrix.os != 'windows-latest'
+        run: pnpm run bun:compile
+      
+      - name: Build for Windows
+        if: matrix.os == 'windows-latest'
+        run: pnpm run node:compile
+
+      - name: Upload workflow artifacts for Unix
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: ignore
+          name: ${{ matrix.os }}
+          path: ./frr-unix
+
+      - name: Upload workflow artifacts for Windows
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          if-no-files-found: ignore
+          name: ${{ matrix.os }}
+          path: ./frr-win.exe
