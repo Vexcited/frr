@@ -1,8 +1,13 @@
-# French Pseudo-code (`frr`)
+# `frr` : Frère
+
+> `frr` also stands for **FR**ench **R**unner or **FR**ench interprete**R**. \
+> But it's also the french word for "bro", so it's funny.
+
+A french pseudo-code interpreter written in TypeScript. Because why not ?
+
+![frr](./assets/logo.png)
 
 ## Install
-
-Binaries are called `frr` (stands for `FRench Runner`, or "frère", depending on the one you prefer)
 
 ### Windows
 
@@ -24,24 +29,25 @@ You can find examples in the [`examples`](./examples) directory.
 
 ## Documentation
 
-Since this language is just pseudo-code, and pseudo-code doesn't have any specification, we have to make sure we all use the same syntax.
+Since this language is based on pseudo-code, and pseudo-code doesn't have any specification, we have to make sure we all use the same syntax.
 
 Here, I used the syntax my school uses but yours may be different. If it slightly differs (like a builtin function name is named differently) you can [open an issue](https://github.com/Vexcited/french-pseudocode/issues) and explain what's different to help me implement aliases.
 
 Let's start with a summary of the syntax. When it's checked in front of it means it's implemented.
 
-- [x] [Comments](#comments) (since v0.1.0)
-- [x] [Variable types](#variable-types) (since v0.1.0)
-- [x] [Variable declaration](#variable-declaration) (since v0.1.0)
-- [ ] [Built-in functions](#built-in-functions)
-  - [ ] [afficher](#afficher)
+- [x] [Comments](#comments) (since v1.0.0)
+- [x] [Variable types](#variable-types) (since v1.0.0)
+- [x] [Variable declaration](#variable-declaration) (since v1.0.0)
+- [] [Built-in functions](#built-in-functions)
+  - [x] [afficher](#afficher)
+  - [x] [saisir](#saisir)
 
 ### Comments
 
 To write a comment, use the `#` character.
 It'll make the rest of the line a comment.
 
-```fr-pc
+```fr
 # This is a comment.
 afficher "Hello World" # This is also a comment.
 ```
@@ -51,7 +57,7 @@ There's no way to make a comment like `/* ... */`.
 
 So multi-line comments should be written like this:
 
-```fr-pc
+```fr
 # Start to write your comment on a line
 # then start a write another comment
 # to continue your comment.
@@ -65,10 +71,10 @@ Those types are **case sensitive**, so always in lowercase.
 
 | Type | Alias in C (or Python) | Since (version) |
 | ---- | ---------- | --------------- |
-| `entier` | `int` | v0.1.0 |
-| `réel` | `float` | v0.1.0 |
+| `entier` | `int` | v1.0.0 |
+| `réel` | `float` | v1.0.0 |
 | `caractère` (alias: `car`) | `char` | *Not implemented* |
-| `chaîne` | `str` in Python | v0.1.0 |
+| `chaîne` | `str` in Python | v1.0.0 |
 | `booléen` | `bool` in Python | *Not implemented* |
 
 ### Variable declaration
@@ -105,7 +111,7 @@ To print something in the console, use the `afficher` keyword.
 Note that **there's no newline at the end of the printed text**.
 So if you want to print a newline, you have to do it manually.
 
-```fr-pc
+```fr
 # This is the "official" way to do it.
 afficher "Hello, World!\n"
 
@@ -117,13 +123,13 @@ afficher ("Hello, World!")
 You can pass multiple arguments to `afficher`.
 Each argument will be printed with a space between them.
 
-```fr-pc
+```fr
 afficher "Hello", "World!" # >>> Hello World!
 ```
 
 You can also pass variables, expressions.
 
-```fr-pc
+```fr
 username <- "Vexcited"
 afficher "Hello " + username # >>> Hello Vexcited
 afficher "Réponse:", 21 * 2  # >>> Réponse: 42
@@ -135,6 +141,34 @@ The following types are allowed in the arguments:
 - `chaîne`
 - `entier`
 - `réel`
+
+#### `saisir`
+
+To get user input, use the `saisir` keyword.
+
+```fr
+avec username : chaîne
+saisir username
+```
+
+`saisir` will **always cast the input to the type of the variable you're assigning it to**.
+If the input can't be casted to the type of the variable, the interpreter will throw an error.
+
+```fr
+avec age : entier
+saisir age
+# If you enter "21", `age` will be equal to 21.
+# If you enter "21.5", `age` will be equal to 21.
+# If you enter "Hello", the interpreter will throw an error.
+```
+
+```fr
+avec x : réel
+saisir x
+# If you enter "21", `x` will be equal to 21.0.
+# If you enter "21.5", `x` will be equal to 21.5.
+# If you enter "Hello", the interpreter will throw an error.
+```
 
 ## Development
 
