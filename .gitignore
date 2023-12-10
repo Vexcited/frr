@@ -15,3 +15,8 @@ node_modules/
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Binary
+dist
+frr-unix
+frr-win

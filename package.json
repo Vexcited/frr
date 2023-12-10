@@ -3,11 +3,20 @@
   "version": "0.1.0",
   "module": "src/index.ts",
   "type": "module",
+  "scripts": {
+    "bun:run": "bun run ./src/cli.ts",
+    "node:run": "tsx ./src/cli.ts",
+    "bun:compile": "bun build ./src/cli.ts --compile --minify --outfile=frr-unix",
+    "node:compile": "tsup-node ./src/cli.ts --format esm && pkg --compress GZip -t node18-win -o frr-win ./dist/cli.js"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
-    "bun-types": "^1.0.13",
-    "eslint": "^8.50.0",
+    "bun-types": "^1.0.16",
+    "eslint": "^8.55.0",
+    "pkg": "^5.8.1",
+    "tsup": "^8.0.1",
+    "tsx": "^4.6.2",
     "typescript": "^5.2.2"
   }
 }
