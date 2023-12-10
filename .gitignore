@@ -19,4 +19,4 @@ node_modules/
 # Binary
 dist
 frr-unix
-frr-win
+frr-win.exe

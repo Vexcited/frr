@@ -28,7 +28,7 @@ if (!fileStats.isFile()) {
   process.exit(3);
 }
 
-const code = await fs.promises.readFile(scriptPath, { encoding: "utf-8" });
+const code = fs.readFileSync(scriptPath, { encoding: "utf-8" });
 
 try {
   const lexer = new Lexer(code);
@@ -41,7 +41,7 @@ try {
 
   // We interpret the code.
   const interpreter = new Interpreter();
-  await interpreter.interpret(tree);
+  interpreter.interpret(tree);
 }
 catch (error) {
   if (error instanceof Error) {
