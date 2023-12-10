@@ -20,3 +20,9 @@ node_modules/
 dist
 frr-unix
 frr-win.exe
+
+# Any other package manager lockfile 
+# is ignored, we main `bun`.
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
