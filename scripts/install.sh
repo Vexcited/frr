@@ -54,7 +54,7 @@ log "DOWNLOADING $download_uri"
 curl --fail --location --progress-bar --output "$zip" "$download_uri"
 
 log "EXTRACTING $zip"
-unzip "$zip" -C "$frr_cli_install"
+unzip "$zip" -d "$frr_cli_install"
 
 log "REMOVING -unix from binary name"
 mv "$frr_cli_install/frr-unix" "$exe"
