@@ -319,7 +319,7 @@ export class Parser {
     }
 
     if (this.current_token?.type !== TokenType.END) {
-      throw new Error("Expected \"fin\".");
+      throw new Error(`Token attendu: END\nToken actuel: ${this.current_token?.type}`);
     }
 
     return results;
