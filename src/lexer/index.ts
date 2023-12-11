@@ -189,7 +189,7 @@ export class Lexer {
   }
 
   public peekAfterWhiteSpaces(): string | null {
-    let peek_pos = this.pos + 1;
+    let peek_pos = this.pos;
 
     while (is_space(this.text[peek_pos])) {
       if (peek_pos > this.text.length - 1) {
