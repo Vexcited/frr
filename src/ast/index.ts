@@ -11,10 +11,11 @@ import {
   IDToken,
   AssignToken,
   RealConstToken,
-  StringConstToken
+  StringConstToken,
+  CharConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -39,7 +40,7 @@ export class Parser {
     }
     // Otherwise raise an exception.
     else {
-      throw new Error("Invalid syntax.\nCurrent token: " + this.current_token?.type + "\nExpected token: " + token_type);
+      throw new Error(`Erreur de syntaxe (${this.lexer.pos_line}:${this.lexer.pos_column}).\nCurrent token: ` + this.current_token?.type + "\nExpected token: " + token_type);
     }
   }
 
@@ -168,6 +169,8 @@ export class Parser {
    * There can be a separator ";".
    * Everything before the separator is a COPY variable,
    * and everything after the separator is a REFERENCE variable.
+   *
+   * TODO: Add support for reference variables.
    */
   private argument_variables (): Array<ArgumentVariable> {
     const current_method: "copy" | "reference" = "copy";
@@ -247,22 +250,26 @@ export class Parser {
 
   /**
    * Handles the type of a variable in the declaration block.
-   * type_spec : entier | réel | chaîne
+   * type_spec : entier | réel | chaîne | (caractère | car)
    */
   private type_spec () {
     const token = this.current_token as IDToken;
 
-    if (token.type === TokenType.INTEGER) {
-      this.eat(TokenType.INTEGER);
-    }
-    else if (token.type === TokenType.REAL) {
-      this.eat(TokenType.REAL);
-    }
-    else if (token.type === TokenType.STRING) {
-      this.eat(TokenType.STRING);
-    }
-    else {
-      throw new Error("Invalid type.");
+    switch (token.type) {
+      case TokenType.INTEGER:
+        this.eat(TokenType.INTEGER);
+        break;
+      case TokenType.REAL:
+        this.eat(TokenType.REAL);
+        break;
+      case TokenType.STRING:
+        this.eat(TokenType.STRING);
+        break;
+      case TokenType.CHAR:
+        this.eat(TokenType.CHAR);
+        break;
+      default:
+        throw new Error(`Le type que vous avez fourni à votre variable est incorrecte.\nType à corriger : "${token.value}"`);
     }
 
     return new Type(token);
@@ -306,6 +313,7 @@ export class Parser {
 
     // After the first statement, we expect the token to be a line break.
     // So we can loop on every statement until we reach the end of the program.
+
 
     while (this.current_token?.type === TokenType.LINE_BREAK) {
       // Eat the line break and move to next token.
@@ -357,7 +365,7 @@ export class Parser {
   private assignment_statement (): Assign {
     const left = this.variable();
     // We keep the variable ID token to pass it in `Assign` node.
-    const token = this.current_token as AssignToken;
+    const assign_token = this.current_token as AssignToken;
 
     // Assign sign `<-`.
     this.eat(TokenType.ASSIGN);
@@ -365,7 +373,7 @@ export class Parser {
     // Value of the variable.
     const right = this.expr();
 
-    return new Assign(left, token, right);
+    return new Assign(left, assign_token, right);
   }
 
   /** procedure_call_statement : ID LPAREN (expr (COMMA expr)*)? RPAREN */
@@ -411,6 +419,10 @@ export class Parser {
    * variable: ID
    */
   private variable (): Variable {
+    if (this.current_token?.type !== TokenType.ID) {
+      throw new Error(`Erreur<ast.variable> de syntaxe.\ndebug: ID != ${this.current_token?.type} ?`);
+    }
+
     const node = new Variable(this.current_token as IDToken);
     this.eat(TokenType.ID);
     return node;
@@ -422,12 +434,8 @@ export class Parser {
   }
 
   /**
-   * factor : PLUS factor
-   *        | MINUS factor
-   *        | INTEGER_CONST
-   *        | REAL_CONST
-   *        | LPAREN expr RPAREN
-   *        | variable
+   * Handles the factor of an expression.
+   * Such as unary operations, numbers, parenthesis, etc.
    */
   private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable {
     const token = this.current_token!;
@@ -458,9 +466,15 @@ export class Parser {
         return node;
       }
 
+      // STRING_CONST
       case TokenType.STRING_CONST:
         this.eat(TokenType.STRING_CONST);
         return new StringConstant(token as StringConstToken);
+
+      // CHAR_CONST
+      case TokenType.CHAR_CONST:
+        this.eat(TokenType.CHAR_CONST);
+        return new CharConstant(token as CharConstToken);
     }
 
     // If the token is not one of the above types, it must be a variable.

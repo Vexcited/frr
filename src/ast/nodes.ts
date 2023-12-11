@@ -1,4 +1,4 @@
-import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken } from "../lexer/tokens";
+import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken, CharConstToken } from "../lexer/tokens";
 import { ProcedureSymbol, VarSymbol } from "../symbols/builtins";
 
 export class BinaryOperation {
@@ -37,6 +37,15 @@ export class StringConstant {
   public value: string;
 
   constructor (public token: StringConstToken) {
+    this.value = token.value;
+  }
+}
+
+export class CharConstant {
+  public type = "CharConstant";
+  public value: string;
+
+  constructor (public token: CharConstToken) {
     this.value = token.value;
   }
 }
@@ -156,4 +165,4 @@ export class NoOp {
   public type = "NoOp";
 }
 
-export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp | StringConstant;
+export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp | StringConstant | CharConstant;

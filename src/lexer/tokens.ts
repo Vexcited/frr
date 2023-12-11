@@ -10,6 +10,11 @@ export enum TokenType {
   DIV = "DIV",
   MOD = "MOD",
 
+  EQUAL = "EQUAL",
+
+  BOOLEAN = "BOOLEAN",
+  BOOLEAN_CONST = "BOOLEAN_CONST",
+
   LPAREN = "LPAREN",
   RPAREN = "RPAREN",
 
@@ -107,6 +112,24 @@ export class RParenToken extends BaseToken<string> {
   }
 }
 
+export class BooleanToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.BOOLEAN, "booléen");
+  }
+}
+
+export class BooleanConstToken extends BaseToken<boolean> {
+  constructor (value: boolean) {
+    super(TokenType.BOOLEAN_CONST, value);
+  }
+}
+
+export class CompareToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.EQUAL, "=");
+  }
+}
+
 export class ProgramToken extends BaseToken<string> {
   constructor () {
     super(TokenType.PROGRAM, "programme");
@@ -180,8 +203,8 @@ export class CharConstToken extends BaseToken<string> {
 }
 
 export class CharToken extends BaseToken<string> {
-  constructor (value: string) {
-    super(TokenType.CHAR, value);
+  constructor () {
+    super(TokenType.CHAR, "caractère");
   }
 }
 
@@ -204,10 +227,10 @@ export type BinaryOperationToken = PlusToken | MinusToken | MulToken | DivToken 
 
 export type Token = BinaryOperationToken | (
   | IntegerConstToken
+  | BooleanConstToken
+  | StringConstToken
+  | CharConstToken
   | RealConstToken
   | EOFToken
   | LineBreakToken
-  | StringConstToken
-  | CharConstToken
-  | CharToken
 );

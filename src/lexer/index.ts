@@ -26,7 +26,11 @@ import {
   AssignToken,
   CommaToken,
   ModToken,
-  ProcedureToken
+  ProcedureToken,
+  BooleanToken,
+  BooleanConstToken,
+  CharConstToken,
+  CharToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -43,13 +47,20 @@ const RESERVED_KEYWORDS = {
   // Types.
   "entier": new IntegerToken(),
   "réel": new RealToken(),
-  "chaîne": new StringToken()
+  "chaîne": new StringToken(),
+  "booléen": new BooleanToken(),
+  "caractère": new CharToken(),
+  "car": new CharToken(), // Alias for "caractère".
+
+  // Constants.
+  "vrai": new BooleanConstToken(true),
+  "faux": new BooleanConstToken(false)
 } as const;
 
 export class Lexer {
   /** Current position in `this.text`. */
   public pos = 0;
-  public pos_line = 1;
+  public pos_line = 0;
   public pos_column = 1;
   /** Current character in `this.text`. */
   public current_char: string | null = null;
@@ -179,6 +190,45 @@ export class Lexer {
     return new StringConstToken(result);
   }
 
+  private handleChar(): CharConstToken {
+    let result = "";
+
+    // Skip the first quote.
+    this.advance();
+
+    // If it is an escape sequence, we handle it.
+    if (this.current_char === "\\") {
+      // Skip the `\` character.
+      this.advance();
+
+      // We set as string because `this.advance()`
+      // updated `this.current_char` variable.
+      switch (this.current_char as string) {
+        case "n":
+          result = "\n";
+          break;
+        case "\"":
+          result = "\"";
+          break;
+        default:
+          // Just output the character as is.
+          // Without the backslash, though.
+          result = this.current_char!;
+          break;
+      }
+    }
+    // If it is a regular character, we just add it.
+    else result = this.current_char!;
+
+    // Skip the character.
+    this.advance();
+
+    // We skip the last quote.
+    this.advance();
+
+    return new CharConstToken(result);
+  }
+
   private peek(into = 1): string | null {
     const peek_pos = this.pos + into;
     if (peek_pos > this.text.length - 1) {
@@ -290,6 +340,8 @@ export class Lexer {
           return new RParenToken();
         case "\"":
           return this.handleString();
+        case "'":
+          return this.handleChar();
       }
 
       throw new Error("Invalid character.");

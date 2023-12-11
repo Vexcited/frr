@@ -44,6 +44,7 @@ class SemanticAnalyzer {
       case "IntegerNumber":
       case "RealNumber":
       case "StringConstant":
+      case "CharConstant":
       case "NoOp":
       case "Type":
         return;

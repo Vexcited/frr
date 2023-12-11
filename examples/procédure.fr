@@ -1,0 +1,12 @@
+procédure hello(nb: entier)
+début
+  afficher "Un nombre:", nb
+fin hello
+
+programme World
+début
+  avec mon_nombre : entier
+  
+  mon_nombre <- 10
+  hello(b)
+fin World

@@ -1,0 +1,9 @@
+programme Caractères
+début
+  avec rl, mon_char: caractère
+
+  rl <- '\n'
+  mon_char <- 'a'
+  afficher "Mon caractère = " + mon_char + rl
+  afficher "Mon caractère+1 = " + (mon_char+1) + rl
+fin Caractères

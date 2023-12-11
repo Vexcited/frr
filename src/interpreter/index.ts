@@ -1,4 +1,4 @@
-import type { AST, Assign, BinaryOperation, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import type { AST, Assign, BinaryOperation, CharConstant, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
 import { ActivationRecord, ActivationRecordType, CallStack } from "./stack";
@@ -29,6 +29,8 @@ class Interpreter {
         return this.visitVariable(node as Variable);
       case "StringConstant":
         return this.visitStringConstant(node as StringConstant);
+      case "CharConstant":
+        return this.visitCharConstant(node as CharConstant);
       // All those are not handled by the interpreter.
       case "VariableDeclaration":
       case "Procedure":
@@ -196,6 +198,10 @@ class Interpreter {
   }
 
   private visitStringConstant (node: StringConstant): string {
+    return node.value;
+  }
+
+  private visitCharConstant (node: CharConstant): string {
     return node.value;
   }
 

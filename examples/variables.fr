@@ -7,4 +7,10 @@ début
 
   afficher a
   afficher "\n"
+
+  afficher "a = "
+  saisir a
+
+  afficher a
+  afficher "\n"
 fin Variables
