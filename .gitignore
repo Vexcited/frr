@@ -26,3 +26,6 @@ frr-win.exe
 package-lock.json
 yarn.lock
 bun.lockb
+
+# Install script logs
+install.log

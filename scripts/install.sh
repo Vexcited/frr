@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # Copyright 2023 Mikkel RINGAUD. MIT license.
 # Edited from Spicetify install script (https://github.com/spicetify/spicetify-cli)
 
@@ -69,7 +69,7 @@ notfound() {
 	cat << EOINFO
 Manually add the directory to your \$PATH through your shell profile
 export FRR_CLI_INSTALL="$frr_cli_install"
-export PATH="\$PATH:$frr_cli_install"
+export PATH="\$PATH:\$FRR_CLI_INSTALL"
 EOINFO
 }
 
