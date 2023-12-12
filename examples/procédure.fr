@@ -8,5 +8,5 @@ début
   avec mon_nombre : entier
   
   mon_nombre <- 10
-  hello(b)
+  hello(mon_nombre)
 fin World

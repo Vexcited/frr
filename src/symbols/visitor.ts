@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, Compound, GlobalScope, Procedure, ProcedureCall, Program, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, Compound, GlobalScope, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
@@ -136,7 +136,7 @@ class SemanticAnalyzer {
         const operation = node.operation.type;
 
         // When one of the operands is a string, we throw an error.
-        if (node.left.type === "StringConstant" || node.right.type === "StringConstant") {
+        if (node.left instanceof StringConstant || node.right instanceof StringConstant) {
           throw new TypeOperationError(operation);
         }
 

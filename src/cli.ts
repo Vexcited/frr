@@ -41,7 +41,15 @@ try {
 
   // We interpret the code.
   const interpreter = new Interpreter();
-  interpreter.interpret(tree);
+  interpreter.interpret(tree)
+    .catch((error) => {
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
+      else {
+        console.error("UnknownError:", error);
+      }
+    });
 }
 catch (error) {
   if (error instanceof Error) {

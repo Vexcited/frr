@@ -1,4 +1,5 @@
-import type { AST, Assign, BinaryOperation, CharConstant, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, CharConstant, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import { TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
 import { ActivationRecord, ActivationRecordType, CallStack } from "./stack";
@@ -118,22 +119,99 @@ class Interpreter {
     }
   }
 
-  private async visitBinaryOperation (node: BinaryOperation): Promise<number> {
-    const node_left = (await this.visit(node.left)) as number;
-    const node_right = (await this.visit(node.right)) as number;
+  private async visitBinaryOperation (node: BinaryOperation): Promise<number | string> {
+    const isChar = (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber) => {
+      if (node instanceof Variable) {
+        const var_symbol = node.symbol_from_syntax_analyzer!;
+        return var_symbol.type === "caractère";
+      }
+
+      return node.type === "CharConstant";
+    };
+
+    type HandledNode = { value: number, isTypeChar: true } | { value: number | string, isTypeChar: false }
+    const handleNode = async (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber): Promise<HandledNode> => {
+      const node_value = (await this.visit(node)) as number | string;
+
+      if (isChar(node) && typeof node_value === "string") {
+        return {
+          value: node_value.charCodeAt(0),
+          isTypeChar: true
+        };
+      }
+
+      return {
+        value: node_value,
+        isTypeChar: false
+      };
+    };
+
+    /** Whether it's not a character AND its value is a string. */
+    const isString = (handled_node: HandledNode) => {
+      return !handled_node.isTypeChar && typeof handled_node.value === "string";
+    };
+
+    let node_left = await handleNode(node.left);
+    let node_right = await handleNode(node.right);
+
+    const handleOperation = (makeOperation: () => number | string) => {
+      if (node_left.isTypeChar) {
+        if (typeof node_right.value === "number") {
+          // Here, left is char so value is number and right is number.
+          return String.fromCharCode(makeOperation() as number);
+        }
+        else {
+          node_left = { // Not a char anymore.
+            isTypeChar: false,
+            value: String.fromCharCode(node_left.value)
+          };
+        }
+      }
+      else if (node_right.isTypeChar) {
+        if (typeof node_left.value === "number") {
+          // Here, right is char so value is number and left is number.
+          return String.fromCharCode(makeOperation() as number);
+        }
+        else {
+          node_right = { // Not a char anymore.
+            isTypeChar: false,
+            value: String.fromCharCode(node_right.value)
+          };
+        }
+      }
+
+      // Force to run the operation again since
+      // values of `node_left` and `node_right` may have changed.
+      return makeOperation();
+    };
+
+    const handleErrorsOnStrings = () => {
+      if (isString(node_left) || isString(node_right)) {
+        throw new TypeOperationError(node.token.type);
+      }
+    };
 
     switch (node.token.type) {
       case TokenType.PLUS:
-        return node_left + node_right;
+        // @ts-expect-error : JS is able to add a string and a number.
+        return handleOperation(() => node_left.value + node_right.value);
       case TokenType.MINUS:
-        return node_left - node_right;
+        handleErrorsOnStrings();
+        // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
+        return handleOperation(() => node_left.value - node_right.value);
       case TokenType.MUL:
-        return node_left * node_right;
+        handleErrorsOnStrings();
+        // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
+        return handleOperation(() => node_left.value * node_right.value);
       case TokenType.DIV:
-        // Integer division.
-        return Math.floor(node_left / node_right);
+        handleErrorsOnStrings();
+        // We use `Math.floor` to perform an integer division.
+        // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
+        return Math.floor(handleOperation(() => node_left.value / node_right.value));
       case TokenType.MOD:
-        return node_left % node_right;
+        handleErrorsOnStrings();
+        // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
+        return handleOperation(() => node_left.value % node_right.value);
       default:
         throw new Error("Invalid token type.");
     }
