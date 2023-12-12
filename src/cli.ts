@@ -45,17 +45,21 @@ try {
     .catch((error) => {
       if (error instanceof Error) {
         console.error(error.message);
+        process.exit(4);
       }
       else {
         console.error("UnknownError:", error);
+        process.exit(5);
       }
     });
 }
 catch (error) {
   if (error instanceof Error) {
     console.error(error.message);
+    process.exit(4);
   }
   else {
     console.error("UnknownError:", error);
+    process.exit(5);
   }
 }
