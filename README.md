@@ -74,10 +74,10 @@ Here, I used the syntax my school uses but yours may be different. If it slightl
 
 Let's start with a summary of the syntax. When it's checked in front of it means it's implemented.
 
-- [x] [Comments](#comments) (since v1.0.0)
-- [x] [Variable types](#variable-types) (since v1.0.0)
-- [x] [Variable declaration](#variable-declaration) (since v1.0.0)
-- [] [Built-in functions](#built-in-functions)
+- [x] [Comments](#comments)
+- [x] [Variable types](#variable-types)
+- [x] [Variable declaration](#variable-declaration)
+- [ ] [Built-in functions](#built-in-functions)
   - [x] [afficher](#afficher)
   - [x] [saisir](#saisir)
 
@@ -108,13 +108,13 @@ When you define a variable, you have to define its type. Here are the available 
 
 Those types are **case sensitive**, so always in lowercase.
 
-| Type | Alias in C (or Python) | Since (version) |
-| ---- | ---------- | --------------- |
-| `entier` | `int` | v1.0.0 |
-| `réel` | `float` | v1.0.0 |
-| `caractère` (alias: `car`) | `char` | *Not implemented* |
-| `chaîne` | `str` in Python | v1.0.0 |
-| `booléen` | `bool` in Python | *Not implemented* |
+| Type                       | Alias in C (or Python) |
+| -------------------------- | ---------------------- |
+| `entier`                   | `int`                  |
+| `réel`                     | `float`                |
+| `caractère` (alias: `car`) | `char`                 |
+| `chaîne`                   | `str` in Python        |
+| `booléen`                  | `bool` in Python       |
 
 ### Variable declaration
 
@@ -174,12 +174,15 @@ afficher "Hello " + username # >>> Hello Vexcited
 afficher "Réponse:", 21 * 2  # >>> Réponse: 42
 ```
 
-The following types are allowed in the arguments:
+Passing a boolean will print `vrai` or `faux`.
 
-- `caractère` (alias: `car`)
-- `chaîne`
-- `entier`
-- `réel`
+```fr
+afficher vrai # >>> vrai
+afficher faux # >>> faux
+
+# So you can print conditions like this:
+afficher "Yes ?", vrai = vrai # >>> Yes ? vrai 
+```
 
 #### `saisir`
 
@@ -213,17 +216,18 @@ saisir x
 
 ### Requirements
 
-- [Bun](https://bun.sh)
-- [Node.js](https://nodejs.org) (if you're a Windows user)
+- [Bun](https://bun.sh) (when building for Linux or macOS)
+- [Node.js](https://nodejs.org) (when building for Windows)
+- [pnpm](https://pnpm.io) (managing dependencies)
 
 ## Getting started
 
 ```sh
 # Clone the repository locally
-git clone https://github.com/Vexcited/french-pseudocode && cd french-pseudocode
+git clone https://github.com/Vexcited/frr && cd frr
 
 # Install dependencies
-bun install # or `pnpm install` with Node.js
+`pnpm install` with Node.js
 ```
 
 ## Resources
