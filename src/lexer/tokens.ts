@@ -9,8 +9,14 @@ export enum TokenType {
   MUL = "MUL",
   DIV = "DIV",
   MOD = "MOD",
+  NOT = "NOT",
 
   EQUAL = "EQUAL",
+  NOT_EQUAL = "NOT_EQUAL",
+  LOWER_THAN = "LOWER_THAN",
+  GREATER_THAN = "GREATER_THAN",
+  LOWER_THAN_OR_EQUAL = "LOWER_THAN_OR_EQUAL",
+  GREATER_THAN_OR_EQUAL = "GREATER_THAN_OR_EQUAL",
 
   BOOLEAN = "BOOLEAN",
   BOOLEAN_CONST = "BOOLEAN_CONST",
@@ -91,6 +97,12 @@ export class MulToken extends BaseToken<string> {
 export class DivToken extends BaseToken<string> {
   constructor () {
     super(TokenType.DIV, "/");
+  }
+}
+
+export class NotToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.NOT, "!");
   }
 }
 
@@ -207,6 +219,44 @@ export class CharToken extends BaseToken<string> {
     super(TokenType.CHAR, "caractère");
   }
 }
+
+export class EqualToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.EQUAL, "=");
+  }
+}
+
+export class NotEqualToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.NOT_EQUAL, "!=");
+  }
+}
+
+export class LowerThanToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.LOWER_THAN, "<");
+  }
+}
+
+export class GreaterThanToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.GREATER_THAN, ">");
+  }
+}
+
+export class LowerThanOrEqualToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.LOWER_THAN_OR_EQUAL, "<=");
+  }
+}
+
+export class GreaterThanOrEqualToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.GREATER_THAN_OR_EQUAL, ">=");
+  }
+}
+
+
 
 /**
  * End of file/input token.

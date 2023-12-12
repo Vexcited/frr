@@ -30,7 +30,14 @@ import {
   BooleanToken,
   BooleanConstToken,
   CharConstToken,
-  CharToken
+  CharToken,
+  LowerThanOrEqualToken,
+  LowerThanToken,
+  GreaterThanOrEqualToken,
+  GreaterThanToken,
+  EqualToken,
+  NotToken,
+  NotEqualToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -302,13 +309,6 @@ export class Lexer {
         return this.identifier();
       }
 
-      // Handle `<-` token.
-      if (this.current_char === "<" && this.peek() === "-") {
-        this.advance();
-        this.advance();
-        return new AssignToken();
-      }
-
       // Handle every other single character token.
       switch (this.current_char) {
         case ",":
@@ -342,9 +342,56 @@ export class Lexer {
           return this.handleString();
         case "'":
           return this.handleChar();
+        case "=":
+          return new EqualToken();
+        case "!": {
+          const peek = this.peek();
+
+          // Handle `!=` token.
+          if (peek === "=") {
+            this.advance();
+            this.advance();
+            return new NotEqualToken();
+          }
+
+          this.advance();
+          return new NotToken();
+        }
+        case "<": {
+          const peek = this.peek();
+
+          // Handle `<=` token.
+          if (peek === "=") {
+            this.advance();
+            this.advance();
+            return new LowerThanOrEqualToken();
+          }
+          // Handle `<-` token.
+          else if (peek === "-") {
+            this.advance();
+            this.advance();
+            return new AssignToken();
+          }
+
+          this.advance();
+          return new LowerThanToken();
+        }
+        case ">": {
+          const peek = this.peek();
+
+          // Handle `>=` token.
+          if (peek === "=") {
+            this.advance();
+            this.advance();
+            return new GreaterThanOrEqualToken();
+          }
+
+          this.advance();
+          return new GreaterThanToken();
+        }
       }
 
-      throw new Error("Invalid character.");
+      throw new Error(`Erreur<lexer.next_token> de syntaxe.\nCaractère invalide (${this.pos_line}:${this.pos_column})`);
     }
 
     return new EOFToken();
