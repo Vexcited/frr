@@ -1,0 +1,8 @@
+programme Conditions
+début
+  avec ma_cond : booléen
+
+  ma_cond <- vrai
+
+  afficher ma_cond = faux
+fin Conditions

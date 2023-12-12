@@ -15,6 +15,7 @@ class ScopedSymbolTable {
     this.define(new BuiltinTypeSymbol("chaîne"));
     this.define(new BuiltinTypeSymbol("caractère"));
     this.define(new BuiltinTypeSymbol("car")); // Alias for "caractère".
+    this.define(new BuiltinTypeSymbol("booléen"));
 
     for (const builtinProcedureName of Object.keys(builtinProcedures)) {
       this.define(new BuiltinProcedureSymbol(builtinProcedureName));

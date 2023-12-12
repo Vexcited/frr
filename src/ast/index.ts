@@ -12,10 +12,11 @@ import {
   AssignToken,
   RealConstToken,
   StringConstToken,
-  CharConstToken
+  CharConstToken,
+  BooleanConstToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -268,6 +269,9 @@ export class Parser {
       case TokenType.CHAR:
         this.eat(TokenType.CHAR);
         break;
+      case TokenType.BOOLEAN:
+        this.eat(TokenType.BOOLEAN);
+        break;
       default:
         throw new Error(`Le type que vous avez fourni à votre variable est incorrecte.\nType à corriger : "${token.value}"`);
     }
@@ -396,6 +400,7 @@ export class Parser {
 
     const args: (
       BinaryOperation | IntegerNumber | UnaryOperation | Variable
+      | CharConstant | StringConstant | BooleanConstant
     )[] = [];
 
     if (this.current_token?.type !== TokenType.RPAREN) {
@@ -437,7 +442,7 @@ export class Parser {
    * Handles the factor of an expression.
    * Such as unary operations, numbers, parenthesis, etc.
    */
-  private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable {
+  private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     const token = this.current_token!;
 
     switch (token.type) {
@@ -475,6 +480,11 @@ export class Parser {
       case TokenType.CHAR_CONST:
         this.eat(TokenType.CHAR_CONST);
         return new CharConstant(token as CharConstToken);
+
+      // BOOLEAN_CONST
+      case TokenType.BOOLEAN_CONST:
+        this.eat(TokenType.BOOLEAN_CONST);
+        return new BooleanConstant(token as BooleanConstToken);
     }
 
     // If the token is not one of the above types, it must be a variable.
@@ -482,7 +492,7 @@ export class Parser {
   }
 
   /** term : factor ((MUL | DIV | MOD) factor)* */
-  private term (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
+  private term (): BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     let node = this.factor();
 
     while (this.current_token?.type && [TokenType.MUL, TokenType.DIV, TokenType.MOD].includes(this.current_token.type)) {
@@ -514,7 +524,7 @@ export class Parser {
    * term   : factor ((MUL | DIV) factor)*
    * factor : INTEGER | LPAREN expr RPAREN
    */
-  private expr (): BinaryOperation | IntegerNumber | UnaryOperation | Variable {
+  private expr (): BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     let node = this.term();
 
     while (this.current_token?.type && [TokenType.PLUS, TokenType.MINUS].includes(this.current_token.type)) {

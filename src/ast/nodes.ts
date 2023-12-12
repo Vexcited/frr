@@ -1,4 +1,4 @@
-import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken, CharConstToken } from "../lexer/tokens";
+import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken, CharConstToken, BooleanConstToken } from "../lexer/tokens";
 import { ProcedureSymbol, VarSymbol } from "../symbols/builtins";
 
 export class BinaryOperation {
@@ -6,9 +6,9 @@ export class BinaryOperation {
   public token: BinaryOperationToken;
 
   constructor (
-    public left: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable,
+    public left: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant,
     public operation: BinaryOperationToken,
-    public right: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable
+    public right: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant
   ) {
     this.token = operation;
   }
@@ -46,6 +46,15 @@ export class CharConstant {
   public value: string;
 
   constructor (public token: CharConstToken) {
+    this.value = token.value;
+  }
+}
+
+export class BooleanConstant {
+  public type = "BooleanConstant";
+  public value: boolean;
+
+  constructor (public token: BooleanConstToken) {
     this.value = token.value;
   }
 }
@@ -96,7 +105,7 @@ export class ProcedureCall {
 
   constructor (
     public name: string,
-    public args: (BinaryOperation | IntegerNumber | UnaryOperation | Variable)[],
+    public args: (BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant)[],
     public token: IDToken
   ) {}
 }
@@ -165,4 +174,4 @@ export class NoOp {
   public type = "NoOp";
 }
 
-export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp | StringConstant | CharConstant;
+export type AST = BinaryOperation | IntegerNumber | RealNumber | Program | Type | VariableDeclaration | UnaryOperation | Compound | Variable | Assign | NoOp | StringConstant | CharConstant | BooleanConstant;

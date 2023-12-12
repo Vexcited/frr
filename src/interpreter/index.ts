@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, CharConstant, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
 import { TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
@@ -32,6 +32,8 @@ class Interpreter {
         return this.visitStringConstant(node as StringConstant);
       case "CharConstant":
         return this.visitCharConstant(node as CharConstant);
+      case "BooleanConstant":
+        return this.visitBooleanConstant(node as BooleanConstant);
       // All those are not handled by the interpreter.
       case "VariableDeclaration":
       case "Procedure":
@@ -39,7 +41,7 @@ class Interpreter {
       case "Type":
         return;
       default:
-        throw new Error("Invalid node type.\nNode received: " + node.type);
+        throw new Error(`Erreur<interpreter.visit> lors de l'exécution.\ndebug: ${node.type} is unknown node type.`);
     }
   }
 
@@ -120,7 +122,7 @@ class Interpreter {
   }
 
   private async visitBinaryOperation (node: BinaryOperation): Promise<number | string> {
-    const isChar = (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber) => {
+    const isChar = (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant) => {
       if (node instanceof Variable) {
         const var_symbol = node.symbol_from_syntax_analyzer!;
         return var_symbol.type === "caractère";
@@ -130,7 +132,7 @@ class Interpreter {
     };
 
     type HandledNode = { value: number, isTypeChar: true } | { value: number | string, isTypeChar: false }
-    const handleNode = async (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber): Promise<HandledNode> => {
+    const handleNode = async (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant): Promise<HandledNode> => {
       const node_value = (await this.visit(node)) as number | string;
 
       if (isChar(node) && typeof node_value === "string") {
@@ -280,6 +282,10 @@ class Interpreter {
   }
 
   private visitCharConstant (node: CharConstant): string {
+    return node.value;
+  }
+
+  private visitBooleanConstant (node: BooleanConstant): boolean {
     return node.value;
   }
 

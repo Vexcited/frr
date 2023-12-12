@@ -45,11 +45,12 @@ class SemanticAnalyzer {
       case "RealNumber":
       case "StringConstant":
       case "CharConstant":
+      case "BooleanConstant":
       case "NoOp":
       case "Type":
         return;
       default:
-        throw new Error("Invalid node type.\nNode received: " + node.type);
+        throw new Error(`Erreur<symbols.visit> de syntaxe.\ndebug: ${node.type} is unknown node type.`);
     }
   }
 
