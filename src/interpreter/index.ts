@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, GlobalScope, If, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, GlobalScope, If, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable, While } from "../ast/nodes";
 import { TypeBooleanOperationError, TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
@@ -26,6 +26,8 @@ class Interpreter {
         return this.visitCompound(node as Compound);
       case "If":
         return this.visitIf(node as If);
+      case "While":
+        return this.visitWhile(node as While);
       case "Assign":
         return this.visitAssign(node as Assign);
       case "Variable":
@@ -297,6 +299,14 @@ class Interpreter {
     }
     else if (!condition && node.else_statements.length > 0) {
       for (const statement of node.else_statements) {
+        await this.visit(statement);
+      }
+    }
+  }
+
+  private async visitWhile (node: While): Promise<void> {
+    while (await this.visit(node.condition)) {
+      for (const statement of node.statements) {
         await this.visit(statement);
       }
     }

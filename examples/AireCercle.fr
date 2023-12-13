@@ -1,0 +1,20 @@
+programme AireDuCercle
+début
+  avec
+    rayon : entier
+    pi    : réel
+  
+  pi <- 3.14159
+
+  afficher "Saisir le rayon du cercle: "
+  saisir rayon
+
+  si rayon <= 0 alors
+    afficher "Le rayon doit être positif"
+  sinon
+    afficher "L'aire du cercle vaut:", pi * rayon * rayon
+  fin si
+
+  # à la ligne  
+  afficher "\n"
+fin AireDuCercle

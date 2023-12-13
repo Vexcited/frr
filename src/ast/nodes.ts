@@ -179,6 +179,15 @@ export class Variable {
   }
 }
 
+export class While {
+  public type = "While";
+
+  constructor (
+    public condition: BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
+    public statements: AST[] = []
+  ) {}
+}
+
 /** Used to represent an empty statement. */
 export class NoOp {
   public type = "NoOp";

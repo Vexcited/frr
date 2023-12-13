@@ -4,8 +4,7 @@ début
 
   ma_condition <- vrai
 
-  si
-  ma_condition
-  alors afficher "c'est vrai !\n"
+  si ma_condition alors
+    afficher "c'est vrai !\n"
   fin si
 fin Conditions

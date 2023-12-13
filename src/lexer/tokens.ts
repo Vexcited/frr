@@ -15,6 +15,9 @@ export enum TokenType {
   ELSE = "ELSE",
   THEN = "THEN",
 
+  WHILE = "WHILE",
+  DO = "DO",
+
   EQUAL = "EQUAL",
   NOT_EQUAL = "NOT_EQUAL",
   LESS_THAN = "LOWER_THAN",
@@ -71,6 +74,18 @@ export class ElseToken extends BaseToken<string> {
 export class ThenToken extends BaseToken<string> {
   constructor () {
     super(TokenType.THEN, "alors");
+  }
+}
+
+export class WhileToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.WHILE, "tant que");
+  }
+}
+
+export class DoToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.DO, "faire");
   }
 }
 

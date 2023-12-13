@@ -40,7 +40,9 @@ import {
   NotEqualToken,
   IfToken,
   ThenToken,
-  ElseToken
+  ElseToken,
+  DoToken,
+  WhileToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -53,6 +55,7 @@ const RESERVED_KEYWORDS = {
   "si": new IfToken(),
   "sinon": new ElseToken(),
   "alors": new ThenToken(),
+  "faire": new DoToken(),
 
   // Operator.
   "mod": new ModToken(),
@@ -253,17 +256,34 @@ export class Lexer {
   }
 
   public peekAfterWhiteSpaces(): string | null {
+    return this.text[this.peekPositionAfterWhiteSpaces()];
+  }
+
+  private peekPositionAfterWhiteSpaces(): number {
     let peek_pos = this.pos;
 
     while (is_space(this.text[peek_pos])) {
       if (peek_pos > this.text.length - 1) {
-        return null;
+        return this.text.length - 1;
       }
 
       peek_pos++;
     }
 
-    return this.text[peek_pos];
+    return peek_pos;
+  }
+
+  private peekIdentifier(pos: number): string | null {
+    let result = "";
+    let current_char = this.text[pos];
+
+    while (current_char !== null && is_alnum(current_char)) {
+      // We concatenate the string representation of the current character.
+      result += current_char;
+      current_char = this.text[++pos];
+    }
+
+    return result;
   }
 
   /** Handle identifiers and reserved keywords. */
@@ -274,6 +294,26 @@ export class Lexer {
       // We concatenate the string representation of the current character.
       result += this.current_char;
       this.advance();
+    }
+
+    // Handle two words tokens.
+    if (result === "tant") {
+      const peek_word_position = this.peekPositionAfterWhiteSpaces();
+      const peek_word = this.peekIdentifier(peek_word_position);
+
+      if (peek_word === "que") {
+        // We skip white spaces.
+        for (let i = 0; i <= (peek_word_position - this.pos); i++) {
+          this.advance();
+        }
+
+        // We skip the "que" word.
+        for (let i = 0; i <= peek_word.length; i++) {
+          this.advance();
+        }
+
+        return new WhileToken();
+      }
     }
 
     return RESERVED_KEYWORDS[result as keyof typeof RESERVED_KEYWORDS] ?? new IDToken(result);

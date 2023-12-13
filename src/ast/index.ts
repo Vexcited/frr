@@ -24,7 +24,7 @@ import {
   NotToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -343,6 +343,7 @@ export class Parser {
       results.push(this.statement());
     }
 
+
     return results;
   }
 
@@ -373,6 +374,10 @@ export class Parser {
 
     else if (this.current_token?.type === TokenType.IF) {
       return this.if_statement();
+    }
+
+    else if (this.current_token?.type === TokenType.WHILE) {
+      return this.while_statement();
     }
 
     return this.empty();
@@ -460,6 +465,24 @@ export class Parser {
     this.eat(TokenType.END);
     this.eat(TokenType.IF);
 
+    return node;
+  }
+
+  private while_statement (): While {
+    this.eat(TokenType.WHILE);
+
+    const condition = this.expr();
+
+    // Possible to add a newline before the `then` token.
+    this.skip_newlines();
+    this.eat(TokenType.DO);
+
+    const statements = this.statement_list();
+
+    this.eat(TokenType.END);
+    this.eat(TokenType.DO);
+
+    const node = new While(condition, statements);
     return node;
   }
 

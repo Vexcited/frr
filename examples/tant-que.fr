@@ -1,0 +1,15 @@
+programme NombresPair
+début
+  avec i : entier
+  i <- 10
+
+  tant que i > 0 faire
+    si i mod 2 = 0 alors
+      afficher i, "est pair\n"
+    sinon
+      afficher i, "est impair\n"
+    fin si
+
+    i <- i - 1
+  fin faire
+fin NombresPair
