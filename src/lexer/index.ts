@@ -50,6 +50,7 @@ const RESERVED_KEYWORDS = {
 
   // Operator.
   "mod": new ModToken(),
+  "non": new NotToken(),
 
   // Types.
   "entier": new IntegerToken(),

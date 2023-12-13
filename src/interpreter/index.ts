@@ -1,5 +1,5 @@
 import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, GlobalScope, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable } from "../ast/nodes";
-import { TypeOperationError } from "../errors/math";
+import { TypeBooleanOperationError, TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
 import { ActivationRecord, ActivationRecordType, CallStack } from "./stack";
@@ -199,24 +199,35 @@ class Interpreter {
       }
     };
 
+    const handleErrorsOnBooleans = () => {
+      if (typeof node_left.value === "boolean" || typeof node_right.value === "boolean") {
+        throw new TypeBooleanOperationError(node.token.type);
+      }
+    };
+
     switch (node.token.type) {
       case TokenType.PLUS:
+        handleErrorsOnBooleans();
         // @ts-expect-error : JS is able to add a string and a number.
         return handleOperation(() => node_left.value + node_right.value);
       case TokenType.MINUS:
+        handleErrorsOnBooleans();
         handleErrorsOnStrings();
         // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
         return handleOperation(() => node_left.value - node_right.value);
       case TokenType.MUL:
+        handleErrorsOnBooleans();
         handleErrorsOnStrings();
         // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
         return handleOperation(() => node_left.value * node_right.value);
       case TokenType.DIV:
+        handleErrorsOnBooleans();
         handleErrorsOnStrings();
         // We use `Math.floor` to perform an integer division.
         // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
         return Math.floor(handleOperation(() => node_left.value / node_right.value));
       case TokenType.MOD:
+        handleErrorsOnBooleans();
         handleErrorsOnStrings();
         // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
         return handleOperation(() => node_left.value % node_right.value);
@@ -247,16 +258,18 @@ class Interpreter {
    * Includes:
    * - `+`
    * - `-`
-   * - `non` (not or !) (TODO)
+   * - `non` (not or !)
    */
-  private async visitUnaryOperation (node: UnaryOperation): Promise<number> {
+  private async visitUnaryOperation (node: UnaryOperation): Promise<number | boolean> {
     switch (node.token.type) {
-      case "PLUS":
+      case TokenType.PLUS:
         return +((await this.visit(node.expr)) as number);
-      case "MINUS":
+      case TokenType.MINUS:
         return -((await this.visit(node.expr)) as number);
+      case TokenType.NOT:
+        return !((await this.visit(node.expr)) as boolean);
       default:
-        throw new Error("Invalid unary token type.");
+        throw new Error("Erreur<interpreter.visitUnaryOperation> lors de l'exécution.\nToken unaire invalide.");
     }
   }
 

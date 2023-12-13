@@ -1,7 +1,7 @@
 programme Conditions
 début
-  avec ma_cond : booléen
+  avec ma_condition : booléen
 
-  ma_cond <- "a" = 'a'
-  afficher ma_cond
+  ma_condition <- vrai = vrai
+  afficher ((non ma_condition) - '\n')
 fin Conditions

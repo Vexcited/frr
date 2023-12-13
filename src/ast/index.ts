@@ -20,7 +20,8 @@ import {
   GreaterThanToken,
   GreaterThanOrEqualToken,
   LessThanOrEqualToken,
-  ModToken
+  ModToken,
+  NotToken
 } from "../lexer/tokens";
 
 import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant } from "./nodes";
@@ -451,7 +452,6 @@ export class Parser {
    */
   private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     const token = this.current_token!;
-    // console.log(token);
 
     switch (token.type) {
       // PLUS factor
@@ -462,6 +462,10 @@ export class Parser {
       case TokenType.MINUS:
         this.eat(TokenType.MINUS);
         return new UnaryOperation(token as MinusToken, this.factor() as IntegerNumber | RealNumber | BinaryOperation | UnaryOperation);
+
+      case TokenType.NOT:
+        this.eat(TokenType.NOT);
+        return new UnaryOperation(token as NotToken, this.factor() as IntegerNumber | RealNumber | BinaryOperation | UnaryOperation);
 
       // INTEGER_CONST | REAL_CONST
       case TokenType.INTEGER_CONST:

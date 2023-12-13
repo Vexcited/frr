@@ -14,6 +14,8 @@ import { TokenType } from "../lexer/tokens";
  */
 const getOperationName = (operation_type: TokenType) => {
   switch (operation_type) {
+    case TokenType.PLUS:
+      return "addition";
     case TokenType.MINUS:
       return "soustraction";
     case TokenType.MUL:
@@ -24,7 +26,7 @@ const getOperationName = (operation_type: TokenType) => {
       return "modulo";
   }
 
-  throw new Error("TypeOperation: Type d'opération non existante.");
+  throw new Error("TypeOperation: Type d'opération non existante." + operation_type);
 };
 
 export class TypeOperationVariableError extends Error {
@@ -38,5 +40,12 @@ export class TypeOperationError extends Error {
   constructor (operation_type: TokenType) {
     const operation_name = getOperationName(operation_type);
     super(`TypeOperationError: Une opération illégale (${operation_name}) a été effectuée sur une chaîne de caractères.`);
+  }
+}
+
+export class TypeBooleanOperationError extends Error {
+  constructor (operation_type: TokenType) {
+    const operation_name = getOperationName(operation_type);
+    super(`TypeBooleanOperationError: Une opération illégale (${operation_name} de booléen) a été effectuée.`);
   }
 }
