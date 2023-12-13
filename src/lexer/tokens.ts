@@ -13,9 +13,9 @@ export enum TokenType {
 
   EQUAL = "EQUAL",
   NOT_EQUAL = "NOT_EQUAL",
-  LOWER_THAN = "LOWER_THAN",
+  LESS_THAN = "LOWER_THAN",
   GREATER_THAN = "GREATER_THAN",
-  LOWER_THAN_OR_EQUAL = "LOWER_THAN_OR_EQUAL",
+  LESS_THAN_OR_EQUAL = "LOWER_THAN_OR_EQUAL",
   GREATER_THAN_OR_EQUAL = "GREATER_THAN_OR_EQUAL",
 
   BOOLEAN = "BOOLEAN",
@@ -232,9 +232,9 @@ export class NotEqualToken extends BaseToken<string> {
   }
 }
 
-export class LowerThanToken extends BaseToken<string> {
+export class LessThanToken extends BaseToken<string> {
   constructor () {
-    super(TokenType.LOWER_THAN, "<");
+    super(TokenType.LESS_THAN, "<");
   }
 }
 
@@ -244,9 +244,9 @@ export class GreaterThanToken extends BaseToken<string> {
   }
 }
 
-export class LowerThanOrEqualToken extends BaseToken<string> {
+export class LessThanOrEqualToken extends BaseToken<string> {
   constructor () {
-    super(TokenType.LOWER_THAN_OR_EQUAL, "<=");
+    super(TokenType.LESS_THAN_OR_EQUAL, "<=");
   }
 }
 

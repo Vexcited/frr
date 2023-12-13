@@ -13,7 +13,14 @@ import {
   RealConstToken,
   StringConstToken,
   CharConstToken,
-  BooleanConstToken
+  BooleanConstToken,
+  EqualToken,
+  NotEqualToken,
+  LessThanToken,
+  GreaterThanToken,
+  GreaterThanOrEqualToken,
+  LessThanOrEqualToken,
+  ModToken
 } from "../lexer/tokens";
 
 import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant } from "./nodes";
@@ -444,6 +451,7 @@ export class Parser {
    */
   private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     const token = this.current_token!;
+    // console.log(token);
 
     switch (token.type) {
       // PLUS factor
@@ -495,22 +503,28 @@ export class Parser {
   private term (): BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     let node = this.factor();
 
-    while (this.current_token?.type && [TokenType.MUL, TokenType.DIV, TokenType.MOD].includes(this.current_token.type)) {
-      const token = this.current_token as MulToken | DivToken;
+    while (this.current_token?.type && [
+      // Arithmetic operations.
+      TokenType.MUL,                   // 1 * 2
+      TokenType.DIV,                   // 1 / 2
+      TokenType.MOD,                   // 1 % 2
+      // Comparison operations.
+      TokenType.EQUAL,                 // 1 = 2
+      TokenType.NOT_EQUAL,             // 1 != 2
+      TokenType.GREATER_THAN,          // 1 > 2
+      TokenType.LESS_THAN,             // 1 < 2
+      TokenType.GREATER_THAN_OR_EQUAL, // 1 >= 2
+      TokenType.LESS_THAN_OR_EQUAL     // 1 <= 2
+      // TODO: TokenType.AND,          // 1 et 2
+      // TODO: TokenType.OR,           // 1 ou 2
+    ].includes(this.current_token.type)) {
+      const token = this.current_token as (
+        MulToken | DivToken | ModToken
+        | EqualToken | NotEqualToken | LessThanToken | GreaterThanToken
+        | LessThanOrEqualToken | GreaterThanOrEqualToken
+      );
 
-      // Handle multiplications in the expression.
-      if (token.type === TokenType.MUL) {
-        this.eat(TokenType.MUL);
-      }
-      // Handle integer divisions in the expression.
-      else if (token.type === TokenType.DIV) {
-        this.eat(TokenType.DIV);
-      }
-      // Handle modulo in the expression.
-      else if (token.type === TokenType.MOD)  {
-        this.eat(TokenType.MOD);
-      }
-
+      this.eat(token.type);
       node = new BinaryOperation(node, token, this.factor());
     }
 
@@ -530,13 +544,7 @@ export class Parser {
     while (this.current_token?.type && [TokenType.PLUS, TokenType.MINUS].includes(this.current_token.type)) {
       const token = this.current_token as PlusToken | MinusToken;
 
-      if (token.type === TokenType.PLUS) {
-        this.eat(TokenType.PLUS);
-      }
-      else if (token.type === TokenType.MINUS) {
-        this.eat(TokenType.MINUS);
-      }
-
+      this.eat(token.type);
       node = new BinaryOperation(node, token, this.term());
     }
 

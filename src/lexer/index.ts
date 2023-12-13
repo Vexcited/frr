@@ -31,8 +31,8 @@ import {
   BooleanConstToken,
   CharConstToken,
   CharToken,
-  LowerThanOrEqualToken,
-  LowerThanToken,
+  LessThanOrEqualToken,
+  LessThanToken,
   GreaterThanOrEqualToken,
   GreaterThanToken,
   EqualToken,
@@ -343,6 +343,7 @@ export class Lexer {
         case "'":
           return this.handleChar();
         case "=":
+          this.advance();
           return new EqualToken();
         case "!": {
           const peek = this.peek();
@@ -364,7 +365,7 @@ export class Lexer {
           if (peek === "=") {
             this.advance();
             this.advance();
-            return new LowerThanOrEqualToken();
+            return new LessThanOrEqualToken();
           }
           // Handle `<-` token.
           else if (peek === "-") {
@@ -374,7 +375,7 @@ export class Lexer {
           }
 
           this.advance();
-          return new LowerThanToken();
+          return new LessThanToken();
         }
         case ">": {
           const peek = this.peek();

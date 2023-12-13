@@ -2,7 +2,6 @@ programme Conditions
 début
   avec ma_cond : booléen
 
-  ma_cond <- vrai
-
-  afficher ma_cond = faux
+  ma_cond <- "a" = 'a'
+  afficher ma_cond
 fin Conditions

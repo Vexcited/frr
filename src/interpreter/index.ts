@@ -121,7 +121,7 @@ class Interpreter {
     }
   }
 
-  private async visitBinaryOperation (node: BinaryOperation): Promise<number | string> {
+  private async visitBinaryOperation (node: BinaryOperation): Promise<number | string | boolean> {
     const isChar = (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant) => {
       if (node instanceof Variable) {
         const var_symbol = node.symbol_from_syntax_analyzer!;
@@ -156,11 +156,16 @@ class Interpreter {
     let node_left = await handleNode(node.left);
     let node_right = await handleNode(node.right);
 
-    const handleOperation = (makeOperation: () => number | string) => {
+    /**
+     * Mostly made to handle character operations.
+     */
+    const handleOperation = (makeOperation: () => number | string | boolean) => {
       if (node_left.isTypeChar) {
         if (typeof node_right.value === "number") {
           // Here, left is char so value is number and right is number.
-          return String.fromCharCode(makeOperation() as number);
+          const val = makeOperation();
+          if (typeof val === "boolean") return val;
+          return String.fromCharCode(val as number);
         }
         else {
           node_left = { // Not a char anymore.
@@ -171,8 +176,9 @@ class Interpreter {
       }
       else if (node_right.isTypeChar) {
         if (typeof node_left.value === "number") {
-          // Here, right is char so value is number and left is number.
-          return String.fromCharCode(makeOperation() as number);
+          const val = makeOperation();
+          if (typeof val === "boolean") return val;
+          return String.fromCharCode(val as number);
         }
         else {
           node_right = { // Not a char anymore.
@@ -214,8 +220,20 @@ class Interpreter {
         handleErrorsOnStrings();
         // @ts-expect-error : Both should be numbers. Note that `caractère` is a number.
         return handleOperation(() => node_left.value % node_right.value);
+      case TokenType.EQUAL:
+        return handleOperation(() => node_left.value === node_right.value);
+      case TokenType.NOT_EQUAL:
+        return handleOperation(() => node_left.value !== node_right.value);
+      case TokenType.GREATER_THAN:
+        return handleOperation(() => node_left.value > node_right.value);
+      case TokenType.GREATER_THAN_OR_EQUAL:
+        return handleOperation(() => node_left.value >= node_right.value);
+      case TokenType.LESS_THAN:
+        return handleOperation(() => node_left.value < node_right.value);
+      case TokenType.LESS_THAN_OR_EQUAL:
+        return handleOperation(() => node_left.value <= node_right.value);
       default:
-        throw new Error("Invalid token type.");
+        throw new Error(`Erreur<interpreter.visitBinaryOperation> lors de l'exécution.\ndebug: ${node.token.type} is unknown operation node type.`);
     }
   }
 
