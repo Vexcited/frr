@@ -21,7 +21,8 @@ export const saisir: BuiltinProcedure = {
 
     const rl = readline.createInterface({ input, output, terminal: false });
     const answer = await rl.question("");
-    rl.close();
+    // See <https://github.com/nodejs/node/issues/17495>.
+    // rl.close();
 
     // Handle user input.
     switch (variable_symbol.type) {
