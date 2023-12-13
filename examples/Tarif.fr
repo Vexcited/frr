@@ -11,7 +11,6 @@ début
 
   afficher "Saisir votre age : "
   saisir age
-  age <- 18
   afficher "Saisir le prix : "
   saisir prix
 
@@ -23,5 +22,5 @@ début
     fin si 
   fin si 
 
-  afficher "\n\nLe prix que vous devez payer :", prix, "\n"
+  afficher "\nLe prix que vous devez payer :", prix, "\n"
 fin Tarif

@@ -2,6 +2,7 @@ import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, 
 import { TypeBooleanOperationError, TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
+import { readline_interface } from "./builtins/saisir";
 import { ActivationRecord, ActivationRecordType, CallStack } from "./stack";
 
 class Interpreter {
@@ -347,9 +348,10 @@ class Interpreter {
     return node.value;
   }
 
-  public async interpret (tree: AST) {
+  public async interpret (tree: AST): Promise<void> {
     await this.visit(tree);
-    return this.call_stack;
+    // Close the readline interface.
+    if (readline_interface) readline_interface.close();
   }
 }
 

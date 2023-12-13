@@ -4,6 +4,8 @@ import * as readline from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
 import { Variable } from "../../ast/nodes";
 
+export let readline_interface: readline.Interface | null = null;
+
 export const saisir: BuiltinProcedure = {
   name: "saisir",
   call: async (scope, args) => {
@@ -19,8 +21,11 @@ export const saisir: BuiltinProcedure = {
     const variable_name = variable.value;
     const variable_symbol = variable.symbol_from_syntax_analyzer!;
 
-    const rl = readline.createInterface({ input, output, terminal: false });
-    const answer = await rl.question("");
+    if (!readline_interface) {
+      readline_interface = readline.createInterface({ input, output, terminal: false });
+    }
+
+    const answer = await readline_interface.question("");
     // See <https://github.com/nodejs/node/issues/17495>.
     // rl.close();
 
