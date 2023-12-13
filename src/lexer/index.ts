@@ -37,7 +37,10 @@ import {
   GreaterThanToken,
   EqualToken,
   NotToken,
-  NotEqualToken
+  NotEqualToken,
+  IfToken,
+  ThenToken,
+  ElseToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -47,6 +50,9 @@ const RESERVED_KEYWORDS = {
   "début": new BeginToken(),
   "avec": new VariableDeclarationBlockToken(),
   "fin": new EndToken(),
+  "si": new IfToken(),
+  "sinon": new ElseToken(),
+  "alors": new ThenToken(),
 
   // Operator.
   "mod": new ModToken(),

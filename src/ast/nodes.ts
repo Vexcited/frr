@@ -87,6 +87,16 @@ export class Program {
   ) {}
 }
 
+export class If {
+  public type = "If";
+
+  constructor (
+    public condition: BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
+    public main_statements: AST[] = [],
+    public else_statements: AST[] = []
+  ) {}
+}
+
 export class Procedure {
   public type = "Procedure";
   public args: VariableDeclaration[] = [];

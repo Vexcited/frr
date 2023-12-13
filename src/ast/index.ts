@@ -24,7 +24,7 @@ import {
   NotToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -318,28 +318,29 @@ export class Parser {
     return root;
   }
 
-  /** statement_list : statement | statement \n statement_list */
-  private statement_list (): Array<AST> {
-    const node = this.statement();
-    const results = [node];
+  /**
+   * statement_list : (statement)*
+   *
+   * Handles statements until it reaches an END token or an
+   * ELSE token (if it's inside an IF statement -> `insideIf === true`).
+   */
+  private statement_list (insideIf = false): Array<AST> {
+    const results = [];
 
     // After the first statement, we expect the token to be a line break.
     // So we can loop on every statement until we reach the end of the program.
+    const isStatementsEnd = () => this.current_token?.type === TokenType.END || (
+      insideIf && this.current_token?.type === TokenType.ELSE
+    );
 
+    while (!isStatementsEnd()) {
+      // Eat every newline token between statements.
+      this.skip_newlines();
 
-    while (this.current_token?.type === TokenType.LINE_BREAK) {
-      // Eat the line break and move to next token.
-      this.eat(TokenType.LINE_BREAK);
-
-      // @ts-expect-error : We moved to next token.
-      // Check if the next token is the end of the program.
-      if (this.current_token?.type === TokenType.END) break;
+      // Check if the next token is the end of the statement list.
+      if (isStatementsEnd()) break;
 
       results.push(this.statement());
-    }
-
-    if (this.current_token?.type !== TokenType.END) {
-      throw new Error(`Token attendu: END\nToken actuel: ${this.current_token?.type}`);
     }
 
     return results;
@@ -368,6 +369,10 @@ export class Parser {
       if (this.lexer.peekAfterWhiteSpaces() === "(") {
         return this.procedure_call_statement();
       }
+    }
+
+    else if (this.current_token?.type === TokenType.IF) {
+      return this.if_statement();
     }
 
     return this.empty();
@@ -428,6 +433,37 @@ export class Parser {
   }
 
   /**
+   * if_statement : SI expr ALORS statement_list (SINON statement_list)? FIN SI
+   */
+  private if_statement (): If {
+    this.eat(TokenType.IF);
+    const condition = this.expr();
+
+    // Possible to add a newline before the `then` token.
+    this.skip_newlines();
+    this.eat(TokenType.THEN);
+
+    const main_statements = this.statement_list(true);
+    let else_statements: AST[] | undefined;
+
+    if (this.current_token?.type === TokenType.ELSE) {
+      this.eat(TokenType.ELSE);
+      else_statements = this.statement_list();
+    }
+
+    const node = new If(
+      condition,
+      main_statements,
+      else_statements
+    );
+
+    this.eat(TokenType.END);
+    this.eat(TokenType.IF);
+
+    return node;
+  }
+
+  /**
    * Handles the variable node.
    * variable: ID
    */
@@ -451,6 +487,7 @@ export class Parser {
    * Such as unary operations, numbers, parenthesis, etc.
    */
   private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
+    this.skip_newlines();
     const token = this.current_token!;
 
     switch (token.type) {
@@ -479,6 +516,10 @@ export class Parser {
       case TokenType.LPAREN: {
         this.eat(TokenType.LPAREN);
         const node = this.expr();
+
+        // Possible to add a newline before the closing parenthesis.
+        this.skip_newlines();
+
         this.eat(TokenType.RPAREN);
         return node;
       }

@@ -11,6 +11,10 @@ export enum TokenType {
   MOD = "MOD",
   NOT = "NOT",
 
+  IF = "IF",
+  ELSE = "ELSE",
+  THEN = "THEN",
+
   EQUAL = "EQUAL",
   NOT_EQUAL = "NOT_EQUAL",
   LESS_THAN = "LOWER_THAN",
@@ -50,6 +54,24 @@ class BaseToken<T> {
     public type: TokenType,
     public value: T
   ) {}
+}
+
+export class IfToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.IF, "si");
+  }
+}
+
+export class ElseToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.ELSE, "sinon");
+  }
+}
+
+export class ThenToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.THEN, "alors");
+  }
 }
 
 export class IntegerToken extends BaseToken<string> {

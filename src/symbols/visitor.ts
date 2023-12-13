@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, Compound, GlobalScope, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, Compound, GlobalScope, If, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration } from "../ast/nodes";
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
@@ -31,6 +31,8 @@ class SemanticAnalyzer {
         return this.visitUnaryOperation(<UnaryOperation>node);
       case "Compound":
         return this.visitCompound(<Compound>node);
+      case "If":
+        return this.visitIf(<If>node);
       case "VariableDeclaration":
         return this.visitVariableDeclaration(<VariableDeclaration>node);
       case "Assign":
@@ -163,13 +165,24 @@ class SemanticAnalyzer {
 
         break;
       }
+
       /**
-       * When it's a "+" operation, we can have
-       * operations with every numbers but also strings.
+       * Conditional operators can be used on anything.
+       *
+       * A "+" operation can have
+       * operations with anything except booleans.
        */
+      case TokenType.EQUAL:
+      case TokenType.GREATER_THAN:
+      case TokenType.GREATER_THAN_OR_EQUAL:
+      case TokenType.LESS_THAN:
+      case TokenType.LESS_THAN_OR_EQUAL:
       case TokenType.PLUS:
         this.visit(node.left);
         this.visit(node.right);
+        break;
+      default:
+        throw new Error("Erreur<symbols.visitBinaryOperation> de syntaxe.\ndebug: unknown binary operation.");
     }
   }
 
@@ -186,6 +199,18 @@ class SemanticAnalyzer {
     // Handle every statements made.
     for (const child of node.children) {
       this.visit(child);
+    }
+  }
+
+  private visitIf (node: If): void {
+    this.visit(node.condition);
+
+    for (const statement of node.main_statements) {
+      this.visit(statement);
+    }
+
+    for (const statement of node.else_statements) {
+      this.visit(statement);
     }
   }
 
