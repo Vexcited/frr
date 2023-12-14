@@ -1,0 +1,18 @@
+# Contrôler des données saisies.
+programme ContrôleSaisir
+début
+  avec var : entier
+
+  afficher "En utilisant tant que :\n"
+  saisir var
+  tant que var != 1 faire
+    afficher "var (doit être = 1) -> "
+    saisir var
+  fin faire
+
+  afficher "En utilisant répéter :\n"
+  répéter
+    afficher "var (doit être = 1) -> "
+    saisir var
+  tant que var != 1
+fin ContrôleSaisir
