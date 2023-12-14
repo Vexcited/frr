@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, GlobalScope, If, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable, While } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, For, GlobalScope, If, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable, While } from "../ast/nodes";
 import { TypeBooleanOperationError, TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
@@ -29,6 +29,8 @@ class Interpreter {
         return this.visitIf(node as If);
       case "While":
         return this.visitWhile(node as While);
+      case "For":
+        return this.visitFor(node as For);
       case "Assign":
         return this.visitAssign(node as Assign);
       case "Variable":
@@ -313,6 +315,67 @@ class Interpreter {
     }
   }
 
+  private async visitFor (node: For): Promise<void> {
+    const variable_name = node.variable.value;
+    const variable_symbol = node.variable.symbol_from_syntax_analyzer!;
+
+    if (variable_symbol.type !== "entier") {
+      throw new Error("Erreur<interpreter.visitFor> lors de l'exécution.\ndebug: the variable in the for loop must be an integer.");
+    }
+
+    const start = await this.visit(node.start);
+    if (typeof start !== "number") {
+      throw new Error("Erreur<interpreter.visitFor> lors de l'exécution.\ndebug: the start value of the for loop must be a number.");
+    }
+    const end = await this.visit(node.end);
+    if (typeof end !== "number") {
+      throw new Error("Erreur<interpreter.visitFor> lors de l'exécution.\ndebug: the start value of the for loop must be a number.");
+    }
+
+    let step = 1;
+    if (node.step) {
+      const visited_step = await this.visit(node.step);
+      if (typeof visited_step !== "number") {
+        throw new Error("Erreur<interpreter.visitFor> lors de l'exécution.\ndebug: the step value of the for loop must be a number.");
+      }
+
+      step = visited_step;
+    }
+
+    if (step === 0) {
+      throw new Error("Erreur lors de l'exécution.\nLa valeur du 'pas' dans une boucle POUR ne peut pas être nulle (0), sinon vous aurez une boucle infinie.");
+    }
+
+    // Check that the start and end values
+    // are correct so it's not infinite.
+    if (step < 0) {
+      if (start < end) {
+        throw new Error("Erreur lors de l'exécution.\nLa valeur de départ doit être supérieure à la valeur de fin dans la boucle POUR car le pas est négatif.\nVous obtiendrez une boucle infinie si ce n'est pas le cas.");
+      }
+    }
+
+    // Get the current activation record.
+    const ar = this.call_stack.peek();
+
+    const getForCondition = (i: number) => {
+      if (step > 0) return i <= end;
+      else return i >= end;
+    };
+
+    for (let i = start; getForCondition(i); i += step) {
+      for (const statement of node.statements) {
+        // We reset the variable value to the current value
+        // at each statement execution, to make sure
+        // it doesn't get modified in the statement.
+        ar.set(variable_name, i);
+        await this.visit(statement);
+      }
+
+      // Update the variable value for the next iteration.
+      ar.set(variable_name, i + step);
+    }
+  }
+
   private async visitAssign (node: Assign): Promise<void> {
     const variableName = node.left.value;
     const newVariableValue = await this.visit(node.right);
@@ -332,7 +395,6 @@ class Interpreter {
 
     const ar = this.call_stack.peek();
     const variableValue = ar.get(variableName);
-
     return variableValue;
   }
 

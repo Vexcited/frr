@@ -188,6 +188,19 @@ export class While {
   ) {}
 }
 
+export class For {
+  public type = "For";
+
+  constructor (
+    public variable: Variable,
+    public start: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant,
+    public end: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant,
+    public step?: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant, // Defaults to 1 in interpreter.
+    public statements: AST[] = []
+  ) {}
+
+}
+
 /** Used to represent an empty statement. */
 export class NoOp {
   public type = "NoOp";

@@ -16,6 +16,10 @@ export enum TokenType {
   THEN = "THEN",
 
   WHILE = "WHILE",
+  FOR = "FOR",
+  FROM = "FROM",
+  TO = "TO",
+  STEP = "STEP",
   DO = "DO",
 
   EQUAL = "EQUAL",
@@ -80,6 +84,30 @@ export class ThenToken extends BaseToken<string> {
 export class WhileToken extends BaseToken<string> {
   constructor () {
     super(TokenType.WHILE, "tant que");
+  }
+}
+
+export class ForToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.FOR, "pour");
+  }
+}
+
+export class FromToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.FROM, "de");
+  }
+}
+
+export class ToToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.TO, "à");
+  }
+}
+
+export class StepToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.STEP, "pas");
   }
 }
 

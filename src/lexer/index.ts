@@ -42,7 +42,11 @@ import {
   ThenToken,
   ElseToken,
   DoToken,
-  WhileToken
+  WhileToken,
+  ForToken,
+  FromToken,
+  ToToken,
+  StepToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -56,6 +60,10 @@ const RESERVED_KEYWORDS = {
   "sinon": new ElseToken(),
   "alors": new ThenToken(),
   "faire": new DoToken(),
+  "pour": new ForToken(),
+  "de": new FromToken(),
+  "à": new ToToken(),
+  "pas": new StepToken(),
 
   // Operator.
   "mod": new ModToken(),

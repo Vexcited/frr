@@ -24,7 +24,7 @@ import {
   NotToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While, For } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -380,6 +380,10 @@ export class Parser {
       return this.while_statement();
     }
 
+    else if (this.current_token?.type === TokenType.FOR) {
+      return this.for_statement();
+    }
+
     return this.empty();
   }
 
@@ -464,6 +468,47 @@ export class Parser {
 
     this.eat(TokenType.END);
     this.eat(TokenType.IF);
+
+    return node;
+  }
+
+  private for_statement (): For {
+    this.eat(TokenType.FOR);
+    const variable = this.variable();
+    this.eat(TokenType.FROM);
+    const from = this.expr();
+    this.eat(TokenType.TO);
+    const to = this.expr();
+
+    let step: IntegerNumber | undefined;
+    if (this.current_token?.type === TokenType.STEP) {
+      this.eat(TokenType.STEP);
+      step = this.expr() as IntegerNumber;
+    }
+
+    this.eat(TokenType.DO);
+
+    const statements = this.statement_list();
+
+    this.eat(TokenType.END);
+    this.eat(TokenType.DO);
+
+    // Prevent booleans.
+    if (from instanceof BooleanConstant || to instanceof BooleanConstant) {
+      throw new Error("Les booléens ne sont pas autorisés dans une boucle POUR.");
+    }
+    // Prevent strings.
+    else if (from instanceof StringConstant || to instanceof StringConstant) {
+      throw new Error("Les chaînes de caractères ne sont pas autorisés dans une boucle POUR.");
+    }
+
+    const node = new For(
+      variable,
+      from,
+      to,
+      step,
+      statements
+    );
 
     return node;
   }

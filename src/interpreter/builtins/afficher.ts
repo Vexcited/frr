@@ -25,10 +25,20 @@ export const afficher: BuiltinProcedure = {
         return arg.value ? "vrai" : "faux";
       }
 
-      if (arg.node instanceof Variable || arg.node instanceof RealNumber) {
+      // If the variable is a real number, we print it with a .0 decimal part.
+      else if (arg.node instanceof Variable) {
+        const variable_symbol = arg.node.symbol_from_syntax_analyzer!;
+        if (variable_symbol.type === "réel") {
+          return readRealAsString(arg.value as number);
+        }
+      }
+
+      // Real numbers are printed with a .0 decimal part.
+      else if (arg.node instanceof RealNumber) {
         return readRealAsString(arg.value as number);
       }
 
+      // Otherwise, we just print the value as it is.
       return arg.value;
     };
 

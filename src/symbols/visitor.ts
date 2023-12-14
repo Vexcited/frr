@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, Compound, GlobalScope, If, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration, While } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, Compound, For, GlobalScope, If, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration, While } from "../ast/nodes";
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
@@ -35,6 +35,8 @@ class SemanticAnalyzer {
         return this.visitIf(<If>node);
       case "While":
         return this.visitWhile(<While>node);
+      case "For":
+        return this.visitFor(<For>node);
       case "VariableDeclaration":
         return this.visitVariableDeclaration(<VariableDeclaration>node);
       case "Assign":
@@ -218,6 +220,22 @@ class SemanticAnalyzer {
 
   private visitWhile (node: While): void {
     this.visit(node.condition);
+
+    for (const statement of node.statements) {
+      this.visit(statement);
+    }
+  }
+
+  private visitFor (node: For): void {
+    const variable = this.visitVariable(node.variable);
+    if (variable.type !== "entier") {
+      throw new Error("Erreur de syntaxe : le compteur d'une boucle 'pour' DOIT être un entier.");
+    }
+
+    this.visit(node.start);
+    this.visit(node.end);
+
+    if (node.step) this.visit(node.step);
 
     for (const statement of node.statements) {
       this.visit(statement);
