@@ -233,4 +233,5 @@ git clone https://github.com/Vexcited/frr && cd frr
 ## Resources
 
 - [How to build a simple interpreter](https://ruslanspivak.com/lsbasi-part1/)
+- [Crafting Interpreters](https://craftinginterpreters.com/)
 - [Algorithm Lessons from `cril.univ-artois.fr`](http://www.cril.univ-artois.fr/~koriche/Algorithmique-2012-Partie7.pdf)
