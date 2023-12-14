@@ -50,7 +50,7 @@ export const saisir: BuiltinProcedure = {
         }
 
         // We require decimal parts.
-        if (Number.isInteger(answer_as_number)) {
+        if (answer.indexOf(".") === -1) {
           throw new Error("Vous devez entrer un réel.");
         }
 
