@@ -1,8 +1,8 @@
-import { AST, Assign, BinaryOperation, Compound, DoWhile, For, GlobalScope, If, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration, While } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, Compound, DoWhile, For, FunctionCall, FunctionNode, GlobalScope, If, Procedure, ProcedureCall, Program, Return, StringConstant, UnaryOperation, Variable, VariableDeclaration, While } from "../ast/nodes";
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
-import { ArgumentVarSymbol, BuiltinTypeSymbol, ProcedureSymbol, VarSymbol } from "./builtins";
+import { ArgumentVarSymbol, BuiltinTypeSymbol, FunctionSymbol, ProcedureSymbol, VarSymbol } from "./builtins";
 import ScopedSymbolTable from "./table";
 
 class SemanticAnalyzer {
@@ -23,8 +23,12 @@ class SemanticAnalyzer {
         return this.visitProgram(<Program>node);
       case "Procedure":
         return this.visitProcedure(<Procedure>node);
+      case "Function":
+        return this.visitFunction(<FunctionNode>node);
       case "ProcedureCall":
         return this.visitProcedureCall(<ProcedureCall>node);
+      case "FunctionCall":
+        return this.visitFunctionCall(<FunctionCall>node);
       case "BinaryOperation":
         return this.visitBinaryOperation(<BinaryOperation>node);
       case "UnaryOperation":
@@ -43,6 +47,8 @@ class SemanticAnalyzer {
         return this.visitVariableDeclaration(<VariableDeclaration>node);
       case "Assign":
         return this.visitAssign(<Assign>node);
+      case "Return":
+        return this.visitReturn(<Return>node);
       case "Variable":
         this.visitVariable(<Variable>node);
         // `visitVariable` returns a value but we don't want it here.
@@ -66,6 +72,10 @@ class SemanticAnalyzer {
     // Handle procedures declarations.
     for (const procedure of node.procedures) {
       this.visit(procedure);
+    }
+
+    for (const func of node.functions) {
+      this.visit(func);
     }
 
     // Finally, handle the main program.
@@ -121,6 +131,43 @@ class SemanticAnalyzer {
     procedure_symbol.compound_from_node = node.compound;
   }
 
+  private visitFunction (node: FunctionNode): void {
+    const function_name = node.name;
+    // We insert the function in the file scope.
+    // So we know we can call it from everywhere in the file.
+    const function_symbol = new FunctionSymbol(function_name);
+    this.global_scope.define(function_symbol);
+
+    // Let's enter the function scope.
+    const function_scope = new ScopedSymbolTable(function_name);
+    this.current_scope = function_scope;
+
+    // Define the arguments of the function.
+    for (const arg of node.args) {
+      const arg_name = arg.var_node.value;
+      const arg_type = arg.type_node.value;
+      const type_symbol: BuiltinTypeSymbol | undefined = this.current_scope.lookup(arg_type);
+
+      if (!type_symbol) {
+        throw new Error(`Type ${arg_type} not found.`);
+      }
+
+      const var_symbol = new ArgumentVarSymbol(arg_name, type_symbol, arg.method);
+      this.current_scope.define(var_symbol);
+      function_symbol.args.push(var_symbol);
+    }
+
+    // Check the semantic of the function.
+    this.visit(node.compound);
+
+    // Exiting the function scope.
+    this.current_scope = null;
+
+    // We set the compound of the function symbol,
+    // so we can easily use it in the interpreter.
+    function_symbol.compound_from_node = node.compound;
+  }
+
   private visitProcedureCall (node: ProcedureCall): void {
     for (const arg of node.args) {
       this.visit(arg);
@@ -128,6 +175,15 @@ class SemanticAnalyzer {
 
     const procedure_symbol = this.global_scope.lookup(node.name) as ProcedureSymbol;
     node.symbol_from_syntax_analyzer = procedure_symbol;
+  }
+
+  private visitFunctionCall (node: FunctionCall): void {
+    for (const arg of node.args) {
+      this.visit(arg);
+    }
+
+    const function_symbol = this.global_scope.lookup(node.name) as FunctionSymbol;
+    node.symbol_from_syntax_analyzer = function_symbol;
   }
 
   private visitBinaryOperation (node: BinaryOperation): void {
@@ -279,6 +335,10 @@ class SemanticAnalyzer {
     }
 
     this.visit(node.right);
+  }
+
+  private visitReturn (node: Return): void {
+    this.visit(node.expr);
   }
 
   /**

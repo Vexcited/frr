@@ -1,9 +1,9 @@
-import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, DoWhile, For, GlobalScope, If, IntegerNumber, ProcedureCall, Program, RealNumber, StringConstant, UnaryOperation, Variable, While } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, BooleanConstant, CharConstant, Compound, DoWhile, For, FunctionCall, GlobalScope, If, IntegerNumber, ProcedureCall, Program, RealNumber, Return, StringConstant, UnaryOperation, Variable, While } from "../ast/nodes";
 import { TypeBooleanOperationError, TypeOperationError } from "../errors/math";
 import { TokenType } from "../lexer/tokens";
 import { builtinProcedures } from "./builtins";
 import { readline_interface } from "./builtins/saisir";
-import { ActivationRecord, ActivationRecordType, CallStack } from "./stack";
+import { ActivationRecord, ActivationRecordType, CallStack, Returned } from "./stack";
 
 class Interpreter {
   public call_stack = new CallStack();
@@ -16,6 +16,8 @@ class Interpreter {
         return this.visitProgram(node as Program);
       case "ProcedureCall":
         return this.visitProcedureCall(node as ProcedureCall);
+      case "FunctionCall":
+        return this.visitFunctionCall(node as FunctionCall);
       case "BinaryOperation":
         return this.visitBinaryOperation(node as BinaryOperation);
       case "IntegerNumber":
@@ -35,6 +37,8 @@ class Interpreter {
         return this.visitDoWhile(node as DoWhile);
       case "Assign":
         return this.visitAssign(node as Assign);
+      case "Return":
+        return this.visitReturn(node as Return);
       case "Variable":
         return this.visitVariable(node as Variable);
       case "StringConstant":
@@ -141,14 +145,78 @@ class Interpreter {
       this.call_stack.push(ar);
 
       // Handle the pseudocode procedure.
-      await this.visit(procedureSymbol.compound_from_node!);
+      await this.visitCompound(procedureSymbol.compound_from_node!);
 
       this.call_stack.pop();
     }
   }
 
+  private async visitFunctionCall (node: FunctionCall): Promise<unknown> {
+    const functionName = node.name;
+
+    // This property is set by the syntax analyzer.
+    // It's set as optional, but it's not since the syntax analyzer
+    // will always set it.
+    const functionSymbol = node.symbol_from_syntax_analyzer!;
+
+    const current_ar = this.call_stack.peek();
+    const ar = new ActivationRecord(
+      functionName,
+      ActivationRecordType.PROCEDURE
+    );
+
+    /** Declaration of the arguments in the procedure. */
+    const formal_args = functionSymbol.args;
+    /** Values passed in the procedure call. */
+    const actual_args = node.args;
+
+    // We iterate through every arguments defined in the procedure.
+    for (let arg_index = 0; arg_index < formal_args.length; arg_index++) {
+      const arg_symbol = formal_args[arg_index];
+      const arg_value = await this.visit(actual_args[arg_index]);
+      const arg = actual_args[arg_index];
+
+      // Handle `reference` variables.
+      if (arg instanceof Variable && arg_symbol.method === "reference") {
+        ar.defineEffect(arg_symbol.name, {
+          get() {
+            const variable_symbol = arg.symbol_from_syntax_analyzer!;
+            return current_ar.get(variable_symbol.name);
+          },
+          set(value) {
+            const variable_symbol = arg.symbol_from_syntax_analyzer!;
+            current_ar.set(variable_symbol.name, value);
+          }
+        });
+      }
+
+      ar.set(arg_symbol.name, arg_value);
+    }
+
+    this.call_stack.push(ar);
+    let value: unknown | undefined;
+
+    // Handle the pseudocode function.
+    await this.visitCompound(functionSymbol.compound_from_node!)
+      .catch((exception) => {
+        // The value of the return will be thrown as an exception.
+        // We catch it here to store and return it.
+        if (exception instanceof Returned) {
+          value = exception.value;
+          return;
+        }
+
+        // Everything else is an error, so we'll have to
+        // actually throw it.
+        throw exception;
+      });
+
+    this.call_stack.pop();
+    return value;
+  }
+
   private async visitBinaryOperation (node: BinaryOperation): Promise<number | string | boolean> {
-    const isChar = (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant) => {
+    const isChar = (node: FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant) => {
       if (node instanceof Variable) {
         const var_symbol = node.symbol_from_syntax_analyzer!;
         return var_symbol.type === "caractère";
@@ -158,7 +226,7 @@ class Interpreter {
     };
 
     type HandledNode = { value: number, isTypeChar: true } | { value: number | string, isTypeChar: false }
-    const handleNode = async (node: BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant): Promise<HandledNode> => {
+    const handleNode = async (node: FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | RealNumber | StringConstant | CharConstant | BooleanConstant): Promise<HandledNode> => {
       const node_value = (await this.visit(node)) as number | string;
 
       if (isChar(node) && typeof node_value === "string") {
@@ -413,6 +481,13 @@ class Interpreter {
     ar.set(variableName, newVariableValue);
   }
 
+  private async visitReturn (node: Return): Promise<void> {
+    const value = await this.visit(node.expr);
+    // Return the error so it can be caught
+    // by the function call.
+    throw new Returned(value);
+  }
+
   /**
    * Returns the value of the variable
    * in the current activation record.
@@ -440,6 +515,15 @@ class Interpreter {
   public async interpret (tree: AST): Promise<void> {
     try {
       await this.visit(tree);
+    }
+    catch (exception) {
+      // Return is only allowed in functions, so usage
+      // inside procedures or main program should throw an error.
+      if (exception instanceof Returned) {
+        throw new Error("Erreur lors de l'exécution.\nUn 'retourne' a été utilisé en dehors d'une fonction.");
+      }
+
+      throw exception;
     }
     finally {
       // Close the readline interface.

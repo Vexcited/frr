@@ -37,6 +37,7 @@ export enum TokenType {
   RPAREN = "RPAREN",
 
   PROCEDURE = "PROCEDURE",
+  FUNCTION = "FUNCTION",
   PROGRAM = "PROGRAM",
   BEGIN = "BEGIN",
   END = "END",
@@ -53,6 +54,7 @@ export enum TokenType {
 
   ID = "ID",
   ASSIGN = "ASSIGN",
+  RETURNS = "RETURNS",
   VARIABLE_DECLARATION_BLOCK = "VARIABLE_DECLARATION_BLOCK",
 
   EOF = "EOF",
@@ -227,6 +229,12 @@ export class ProgramToken extends BaseToken<string> {
   }
 }
 
+export class FunctionToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.FUNCTION, "fonction");
+  }
+}
+
 export class ProcedureToken extends BaseToken<string> {
   constructor () {
     super(TokenType.PROCEDURE, "procédure");
@@ -335,7 +343,11 @@ export class GreaterThanOrEqualToken extends BaseToken<string> {
   }
 }
 
-
+export class ReturnsToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.RETURNS, "retourne");
+  }
+}
 
 /**
  * End of file/input token.

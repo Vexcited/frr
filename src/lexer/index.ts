@@ -48,13 +48,16 @@ import {
   ToToken,
   StepToken,
   RepeatToken,
-  SemiColonToken
+  SemiColonToken,
+  ReturnsToken,
+  FunctionToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
   // Keywords.
   "procédure": new ProcedureToken(),
   "programme": new ProgramToken(),
+  "fonction": new FunctionToken(),
   "début": new BeginToken(),
   "avec": new VariableDeclarationBlockToken(),
   "fin": new EndToken(),
@@ -67,6 +70,7 @@ const RESERVED_KEYWORDS = {
   "à": new ToToken(),
   "pas": new StepToken(),
   "répéter": new RepeatToken(),
+  "retourne": new ReturnsToken(),
 
   // Operator.
   "mod": new ModToken(),

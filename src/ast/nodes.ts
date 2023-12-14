@@ -1,14 +1,14 @@
 import type { IntegerConstToken, RealConstToken, BinaryOperationToken, IDToken, AssignToken, StringConstToken, CharConstToken, BooleanConstToken } from "../lexer/tokens";
-import { ProcedureSymbol, VarSymbol } from "../symbols/builtins";
+import { FunctionSymbol, ProcedureSymbol, VarSymbol } from "../symbols/builtins";
 
 export class BinaryOperation {
   public type = "BinaryOperation";
   public token: BinaryOperationToken;
 
   constructor (
-    public left: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant,
+    public left: FunctionCall | IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant,
     public operation: BinaryOperationToken,
-    public right: IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant
+    public right: FunctionCall | IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant
   ) {
     this.token = operation;
   }
@@ -70,11 +70,11 @@ export class UnaryOperation {
 
 export class GlobalScope {
   public type = "GlobalScope";
-  public functions: unknown[] = [];
-  public procedures: Procedure[] = [];
 
   constructor (
-    public program: Program
+    public program: Program,
+    public functions: FunctionNode[],
+    public procedures: Procedure[]
   ) {}
 }
 
@@ -91,7 +91,7 @@ export class If {
   public type = "If";
 
   constructor (
-    public condition: BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
+    public condition: FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
     public main_statements: AST[] = [],
     public else_statements: AST[] = []
   ) {}
@@ -107,6 +107,17 @@ export class Procedure {
   ) {}
 }
 
+export class FunctionNode {
+  public type = "Function";
+  public args: ArgumentVariable[] = [];
+
+  constructor (
+    public name: string,
+    public return_type: Type,
+    public compound: Compound
+  ) {}
+}
+
 export class ProcedureCall {
   public type = "ProcedureCall";
 
@@ -115,7 +126,20 @@ export class ProcedureCall {
 
   constructor (
     public name: string,
-    public args: (BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant)[],
+    public args: (FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant)[],
+    public token: IDToken
+  ) {}
+}
+
+export class FunctionCall {
+  public type = "FunctionCall";
+
+  /** The symbol of the function being called. */
+  public symbol_from_syntax_analyzer?: FunctionSymbol;
+
+  constructor (
+    public name: string,
+    public args: (FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant)[],
     public token: IDToken
   ) {}
 }
@@ -166,6 +190,14 @@ export class Assign {
   }
 }
 
+export class Return {
+  public type = "Return";
+
+  constructor (
+    public expr: FunctionCall | IntegerNumber | RealNumber | BinaryOperation | UnaryOperation | Variable | StringConstant | CharConstant | BooleanConstant
+  ) {}
+}
+
 export class Variable {
   public type = "Variable";
   public value: string;
@@ -182,7 +214,7 @@ export class While {
   public type = "While";
 
   constructor (
-    public condition: BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
+    public condition: FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
     public statements: AST[] = []
   ) {}
 }
@@ -192,9 +224,9 @@ export class For {
 
   constructor (
     public variable: Variable,
-    public start: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant,
-    public end: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant,
-    public step?: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant, // Defaults to 1 in interpreter.
+    public start: FunctionCall | IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant,
+    public end: FunctionCall | IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant,
+    public step?: FunctionCall | IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant, // Defaults to 1 in interpreter.
     public statements: AST[] = []
   ) {}
 }
@@ -203,7 +235,7 @@ export class DoWhile {
   public type = "DoWhile";
 
   constructor (
-    public condition: BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
+    public condition: FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
     public statements: AST[] = []
   ) {}
 }

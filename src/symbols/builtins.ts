@@ -40,6 +40,21 @@ export class ProcedureSymbol extends BaseSymbol {
   }
 }
 
+export class FunctionSymbol extends BaseSymbol {
+  /**
+   * Compound from the FunctionNode AST node.
+   * Manually set by the syntax analyzer,
+   * at the end of the `visitFunctionNode` method.
+   *
+   * When using in interpreter, this is ALWAYS set.
+   */
+  public compound_from_node?: Compound;
+
+  constructor (name: string, public args: ArgumentVarSymbol[] = []) {
+    super(name);
+  }
+}
+
 export class BuiltinProcedureSymbol extends BaseSymbol {
   constructor (name: string, public args: VarSymbol[] = []) {
     super(name);

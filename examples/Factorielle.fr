@@ -1,0 +1,27 @@
+fonction factorielle (n : entier) retourne entier
+début
+  avec res, i : entier
+  res <- 1
+
+  pour i de 2 à n faire
+    res <- res * i
+  fin faire
+
+  retourne res
+fin factorielle
+
+programme AfficherFactorielle
+début
+  avec
+    val, res : entier
+
+  afficher "Valeur d'entrée : "
+  saisir val
+
+  si val >= 0 alors
+    res <- factorielle(val)
+    afficher val + "! =", res, "\n"
+  sinon
+    afficher "La valeur d'entrée doit être supérieure ou égale à 0."
+  fin si
+fin AfficherFactorielle

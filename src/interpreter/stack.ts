@@ -57,3 +57,12 @@ export class CallStack {
     return this.activation_records[this.activation_records.length - 1];
   }
 }
+
+/**
+ * When a return was used in a function.
+ * Return is only allowed in functions, so usage
+ * inside procedures or main program will throw an error.
+ */
+export class Returned {
+  constructor (public value: unknown) {}
+}

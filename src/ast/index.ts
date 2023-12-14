@@ -24,7 +24,7 @@ import {
   NotToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While, For, DoWhile } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While, For, DoWhile, FunctionNode, Return, FunctionCall } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -53,6 +53,10 @@ export class Parser {
     }
   }
 
+  /**
+   * Eats every new lines until it reaches a
+   * token that is not a new line.
+   */
   private skip_newlines (): void {
     while (this.current_token?.type === TokenType.LINE_BREAK) {
       this.eat(TokenType.LINE_BREAK);
@@ -76,29 +80,31 @@ export class Parser {
 
     let main_program: Program | undefined;
     const procedures: Procedure[] = [];
+    const functions: FunctionNode[] = [];
 
     this.skip_newlines(); // Skip every new lines before any scope token.
 
     const scope_tokens = [
       TokenType.PROCEDURE,
+      TokenType.FUNCTION,
       TokenType.PROGRAM
     ];
 
     while (scope_tokens.includes(this.current_token.type)) {
-      // Handle main program.
-      if (this.current_token?.type === TokenType.PROGRAM) {
-        if (main_program) {
-          throw new Error("Il ne peut y avoir qu'un seul programme principal.");
-        }
+      switch (this.current_token.type) {
+        case TokenType.PROGRAM:
+          if (main_program) {
+            throw new Error("Il ne peut y avoir qu'un seul programme principal.");
+          }
 
-        main_program = this.program();
-      }
-      // Handle procedures.
-      else if (this.current_token?.type === TokenType.PROCEDURE) {
-        procedures.push(this.procedure());
-      }
-      else {
-        throw new Error("Invalid scope token.");
+          main_program = this.program();
+          break;
+        case TokenType.FUNCTION:
+          functions.push(this.function());
+          break;
+        case TokenType.PROCEDURE:
+          procedures.push(this.procedure());
+          break;
       }
 
       // Skip new lines after the scope token.
@@ -109,8 +115,12 @@ export class Parser {
       throw new Error("Il n'y a pas de programme principal.");
     }
 
-    const node = new GlobalScope(main_program);
-    node.procedures = procedures;
+    const node = new GlobalScope(
+      main_program,
+      functions,
+      procedures
+    );
+
     return node;
   }
 
@@ -135,7 +145,39 @@ export class Parser {
     return program_node;
   }
 
-  /** procedure: procédure `variable` ... */
+  /** function: fonction `variable` (...) retourne type_spec */
+  private function () {
+    this.eat(TokenType.FUNCTION);
+    const variable_node = this.variable();
+    const function_name = variable_node.value;
+
+    this.eat(TokenType.LPAREN);
+    // Parse every arguments.
+    const args = this.argument_variables();
+    this.eat(TokenType.RPAREN);
+
+    this.eat(TokenType.RETURNS);
+    const return_type = this.type_spec();
+
+    // We expect a line break after the function definition.
+    this.skip_newlines();
+
+    const compound = this.compound_statement();
+
+    // Check if the program name matches.
+    // Otherwise raise an exception.
+    const end_variable_node = this.variable();
+    if (end_variable_node.value !== function_name) {
+      throw new Error(`Le nom de la fonction ne correspond pas à celui assigné au début (${function_name}).\nVérifiez que vous avez bien écrit "fin ${function_name}".\nValeur reçu: "fin ${end_variable_node.value}"`);
+    }
+
+    const function_node = new FunctionNode(function_name, return_type, compound);
+    function_node.args = args;
+
+    return function_node;
+  }
+
+  /** procedure: procédure `variable` (...) */
   private procedure () {
     this.eat(TokenType.PROCEDURE);
     const variable_node = this.variable();
@@ -147,7 +189,7 @@ export class Parser {
     this.eat(TokenType.RPAREN);
 
     // We expect a line break after the procedure definition.
-    this.eat(TokenType.LINE_BREAK);
+    this.skip_newlines();
 
     const compound = this.compound_statement();
 
@@ -356,7 +398,6 @@ export class Parser {
       results.push(this.statement());
     }
 
-
     return results;
   }
 
@@ -365,40 +406,38 @@ export class Parser {
    * - assignments
    * - procedure calls **with parenthesis**
    * - builtin procedure calls **that doesn't require parenthesis**
+   * - a return statement
    */
   private statement (): AST {
-    if (this.current_token?.type === TokenType.ID) {
-      // We handle the assignment statement,
-      // should be checked before the procedure call statement.
-      if (this.lexer.peekAfterWhiteSpaces() === "<") {
-        return this.assignment_statement();
-      }
+    switch (this.current_token?.type) {
+      case TokenType.ID:
+        // We handle the assignment statement,
+        // should be checked before the procedure call statement.
+        if (this.lexer.peekAfterWhiteSpaces() === "<") {
+          return this.assignment_statement();
+        }
 
-      // Only those two procedures don't require parenthesis.
-      if (this.current_token.value === "afficher" || this.current_token.value === "saisir") {
-        return this.procedure_call_statement();
-      }
+        // Only those two procedures don't require parenthesis.
+        if (this.current_token.value === "afficher" || this.current_token.value === "saisir") {
+          return this.procedure_call_statement();
+        }
 
-      // Otherwise, we expect parenthesis.
-      if (this.lexer.peekAfterWhiteSpaces() === "(") {
-        return this.procedure_call_statement();
-      }
-    }
+        // Otherwise, we expect parenthesis.
+        if (this.lexer.peekAfterWhiteSpaces() === "(") {
+          return this.procedure_call_statement();
+        }
 
-    else if (this.current_token?.type === TokenType.IF) {
-      return this.if_statement();
-    }
-
-    else if (this.current_token?.type === TokenType.WHILE) {
-      return this.while_statement();
-    }
-
-    else if (this.current_token?.type === TokenType.FOR) {
-      return this.for_statement();
-    }
-
-    else if (this.current_token?.type === TokenType.REPEAT) {
-      return this.do_while_statement();
+        break;
+      case TokenType.IF:
+        return this.if_statement();
+      case TokenType.WHILE:
+        return this.while_statement();
+      case TokenType.FOR:
+        return this.for_statement();
+      case TokenType.REPEAT:
+        return this.do_while_statement();
+      case TokenType.RETURNS:
+        return this.return_statement();
     }
 
     return this.empty();
@@ -439,7 +478,7 @@ export class Parser {
 
     const args: (
       BinaryOperation | IntegerNumber | UnaryOperation | Variable
-      | CharConstant | StringConstant | BooleanConstant
+      | CharConstant | StringConstant | BooleanConstant | FunctionCall
     )[] = [];
 
     const readArgumentsAndAppend = (additionalEndToken?: TokenType) => {
@@ -470,6 +509,45 @@ export class Parser {
       this.eat(TokenType.RPAREN);
 
     const node = new ProcedureCall(procedure_name, args, token);
+    return node;
+  }
+
+  private function_call_statement (variable_node: Variable): FunctionCall {
+    const token = variable_node.token;
+    const function_name = token.value;
+
+    const args: (
+      FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable
+      | CharConstant | StringConstant | BooleanConstant
+    )[] = [];
+
+    const readArgumentsAndAppend = (additionalEndToken?: TokenType) => {
+      if (!this.current_token) throw new Error("Unexpected end of file.");
+      const endTokens = [TokenType.RPAREN];
+
+      if (additionalEndToken) endTokens.push(additionalEndToken);
+
+      if (!endTokens.includes(this.current_token.type)) {
+        args.push(this.expr());
+      }
+
+      while (this.current_token?.type === TokenType.COMMA) {
+        this.eat(TokenType.COMMA);
+        args.push(this.expr());
+      }
+    };
+
+    readArgumentsAndAppend(TokenType.SEMI_COLON);
+
+    if (this.current_token?.type === TokenType.SEMI_COLON) {
+      this.eat(TokenType.SEMI_COLON);
+      readArgumentsAndAppend();
+    }
+
+    if (this.current_token?.type === TokenType.RPAREN)
+      this.eat(TokenType.RPAREN);
+
+    const node = new FunctionCall(function_name, args, token);
     return node;
   }
 
@@ -579,6 +657,14 @@ export class Parser {
     return node;
   }
 
+  private return_statement (): Return {
+    this.eat(TokenType.RETURNS);
+    const expr = this.expr();
+
+    const node = new Return(expr);
+    return node;
+  }
+
   /**
    * Handles the variable node.
    * variable: ID
@@ -602,7 +688,7 @@ export class Parser {
    * Handles the factor of an expression.
    * Such as unary operations, numbers, parenthesis, etc.
    */
-  private factor (): BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
+  private factor (): FunctionCall | BinaryOperation | IntegerNumber | RealNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     this.skip_newlines();
     const token = this.current_token!;
 
@@ -656,12 +742,19 @@ export class Parser {
         return new BooleanConstant(token as BooleanConstToken);
     }
 
-    // If the token is not one of the above types, it must be a variable.
-    return this.variable();
+    const identifier = this.variable();
+
+    // Handle function call assignments.
+    if (this.current_token?.type === TokenType.LPAREN) {
+      this.eat(TokenType.LPAREN);
+      return this.function_call_statement(identifier);
+    }
+
+    return identifier;
   }
 
   /** term : factor ((MUL | DIV | MOD) factor)* */
-  private term (): BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
+  private term (): FunctionCall | BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
     let node = this.factor();
 
     while (this.current_token?.type && [
@@ -693,13 +786,9 @@ export class Parser {
   }
 
   /**
-   * Arithmetic expression parser / interpreter.
-   *
-   * expr   : term ((PLUS | MINUS) term)*
-   * term   : factor ((MUL | DIV) factor)*
-   * factor : INTEGER | LPAREN expr RPAREN
+   * Handle any expression.
    */
-  private expr (): BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant {
+  private expr (): BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant | FunctionCall {
     let node = this.term();
 
     while (this.current_token?.type && [TokenType.PLUS, TokenType.MINUS].includes(this.current_token.type)) {
