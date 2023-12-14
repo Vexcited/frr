@@ -438,9 +438,13 @@ class Interpreter {
   }
 
   public async interpret (tree: AST): Promise<void> {
-    await this.visit(tree);
-    // Close the readline interface.
-    if (readline_interface) readline_interface.close();
+    try {
+      await this.visit(tree);
+    }
+    finally {
+      // Close the readline interface.
+      if (readline_interface) readline_interface.close();
+    }
   }
 }
 
