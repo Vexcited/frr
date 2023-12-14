@@ -24,7 +24,7 @@ import {
   NotToken
 } from "../lexer/tokens";
 
-import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While, For } from "./nodes";
+import { IntegerNumber, BinaryOperation, UnaryOperation, type AST, Compound, NoOp, Variable, Assign, Program, Type, VariableDeclaration, RealNumber, StringConstant, GlobalScope, Procedure, ArgumentVariable, ProcedureCall, CharConstant, BooleanConstant, If, While, For, DoWhile } from "./nodes";
 
 export class Parser {
   /** Current token instance. */
@@ -324,14 +324,16 @@ export class Parser {
    * Handles statements until it reaches an END token or an
    * ELSE token (if it's inside an IF statement -> `insideIf === true`).
    */
-  private statement_list (insideIf = false): Array<AST> {
+  private statement_list (end = [TokenType.END]): Array<AST> {
     const results = [];
 
     // After the first statement, we expect the token to be a line break.
     // So we can loop on every statement until we reach the end of the program.
-    const isStatementsEnd = () => this.current_token?.type === TokenType.END || (
-      insideIf && this.current_token?.type === TokenType.ELSE
-    );
+    const isStatementsEnd = () => {
+      // If there's no current token, we reached the end of the program.
+      if (!this.current_token) return true;
+      return end.includes(this.current_token.type);
+    };
 
     while (!isStatementsEnd()) {
       // Eat every newline token between statements.
@@ -382,6 +384,10 @@ export class Parser {
 
     else if (this.current_token?.type === TokenType.FOR) {
       return this.for_statement();
+    }
+
+    else if (this.current_token?.type === TokenType.REPEAT) {
+      return this.do_while_statement();
     }
 
     return this.empty();
@@ -452,9 +458,12 @@ export class Parser {
     this.skip_newlines();
     this.eat(TokenType.THEN);
 
-    const main_statements = this.statement_list(true);
-    let else_statements: AST[] | undefined;
+    const main_statements = this.statement_list([
+      TokenType.END, // If we see `fin si`, we stop the statement list.
+      TokenType.ELSE // If we see `sinon`, we also stop the statement list.
+    ]);
 
+    let else_statements: AST[] | undefined;
     if (this.current_token?.type === TokenType.ELSE) {
       this.eat(TokenType.ELSE);
       else_statements = this.statement_list();
@@ -528,6 +537,19 @@ export class Parser {
     this.eat(TokenType.DO);
 
     const node = new While(condition, statements);
+    return node;
+  }
+
+  private do_while_statement (): DoWhile {
+    this.eat(TokenType.REPEAT);
+    const statements = this.statement_list([
+      TokenType.WHILE // End the statement when we see "tant que".
+    ]);
+
+    this.eat(TokenType.WHILE);
+    const condition = this.expr();
+
+    const node = new DoWhile(condition, statements);
     return node;
   }
 

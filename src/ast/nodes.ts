@@ -198,7 +198,15 @@ export class For {
     public step?: IntegerNumber | Variable | BinaryOperation | UnaryOperation | CharConstant, // Defaults to 1 in interpreter.
     public statements: AST[] = []
   ) {}
+}
 
+export class DoWhile {
+  public type = "DoWhile";
+
+  constructor (
+    public condition: BinaryOperation | IntegerNumber | UnaryOperation | Variable | CharConstant | StringConstant | BooleanConstant,
+    public statements: AST[] = []
+  ) {}
 }
 
 /** Used to represent an empty statement. */

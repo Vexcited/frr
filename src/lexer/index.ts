@@ -46,7 +46,8 @@ import {
   ForToken,
   FromToken,
   ToToken,
-  StepToken
+  StepToken,
+  RepeatToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -64,6 +65,7 @@ const RESERVED_KEYWORDS = {
   "de": new FromToken(),
   "à": new ToToken(),
   "pas": new StepToken(),
+  "répéter": new RepeatToken(),
 
   // Operator.
   "mod": new ModToken(),

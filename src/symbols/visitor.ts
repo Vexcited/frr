@@ -1,4 +1,4 @@
-import { AST, Assign, BinaryOperation, Compound, For, GlobalScope, If, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration, While } from "../ast/nodes";
+import { AST, Assign, BinaryOperation, Compound, DoWhile, For, GlobalScope, If, Procedure, ProcedureCall, Program, StringConstant, UnaryOperation, Variable, VariableDeclaration, While } from "../ast/nodes";
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
@@ -35,6 +35,8 @@ class SemanticAnalyzer {
         return this.visitIf(<If>node);
       case "While":
         return this.visitWhile(<While>node);
+      case "DoWhile":
+        return this.visitDoWhile(<DoWhile>node);
       case "For":
         return this.visitFor(<For>node);
       case "VariableDeclaration":
@@ -219,6 +221,14 @@ class SemanticAnalyzer {
   }
 
   private visitWhile (node: While): void {
+    this.visit(node.condition);
+
+    for (const statement of node.statements) {
+      this.visit(statement);
+    }
+  }
+
+  private visitDoWhile (node: DoWhile): void {
     this.visit(node.condition);
 
     for (const statement of node.statements) {

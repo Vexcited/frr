@@ -16,6 +16,7 @@ export enum TokenType {
   THEN = "THEN",
 
   WHILE = "WHILE",
+  REPEAT = "REPEAT",
   FOR = "FOR",
   FROM = "FROM",
   TO = "TO",
@@ -114,6 +115,12 @@ export class StepToken extends BaseToken<string> {
 export class DoToken extends BaseToken<string> {
   constructor () {
     super(TokenType.DO, "faire");
+  }
+}
+
+export class RepeatToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.REPEAT, "répéter");
   }
 }
 
