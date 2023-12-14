@@ -140,18 +140,11 @@ export class Parser {
     this.eat(TokenType.PROCEDURE);
     const variable_node = this.variable();
     const procedure_name = variable_node.value;
-    let args: ArgumentVariable[] = [];
 
     this.eat(TokenType.LPAREN);
-    // There's no arguments.
-    if (this.current_token?.type === TokenType.RPAREN) {
-      this.eat(TokenType.RPAREN);
-    }
     // Parse every arguments.
-    else {
-      args = this.argument_variables();
-      this.eat(TokenType.RPAREN);
-    }
+    const args = this.argument_variables();
+    this.eat(TokenType.RPAREN);
 
     // We expect a line break after the procedure definition.
     this.eat(TokenType.LINE_BREAK);
@@ -178,16 +171,34 @@ export class Parser {
    * There can be a separator ";".
    * Everything before the separator is a COPY variable,
    * and everything after the separator is a REFERENCE variable.
-   *
-   * TODO: Add support for reference variables.
    */
   private argument_variables (): Array<ArgumentVariable> {
-    const current_method: "copy" | "reference" = "copy";
-    const var_nodes = [this.argument_variable(current_method)];
+    const var_nodes: ArgumentVariable[] = [];
 
-    while (this.current_token?.type === TokenType.COMMA) {
-      this.eat(TokenType.COMMA);
-      var_nodes.push(this.argument_variable(current_method));
+    const readArgumentsAndAppend = (method: "copy" | "reference", endToken: TokenType[]) => {
+      if (!this.current_token) throw new Error("Unexpected end of file.");
+
+      if (!endToken.includes(this.current_token.type)) {
+        var_nodes.push(this.argument_variable(method));
+      }
+
+      while (this.current_token?.type === TokenType.COMMA) {
+        this.eat(TokenType.COMMA);
+        var_nodes.push(this.argument_variable(method));
+      }
+    };
+
+    // SEMI_COLON can be an open token if there's no copy variables.
+    readArgumentsAndAppend("copy", [
+      TokenType.RPAREN,
+      TokenType.SEMI_COLON
+    ]);
+
+    if (this.current_token?.type === TokenType.SEMI_COLON) {
+      this.eat(TokenType.SEMI_COLON);
+      readArgumentsAndAppend("reference", [
+        TokenType.RPAREN
+      ]);
     }
 
     return var_nodes;
@@ -431,13 +442,28 @@ export class Parser {
       | CharConstant | StringConstant | BooleanConstant
     )[] = [];
 
-    if (this.current_token?.type !== TokenType.RPAREN) {
-      args.push(this.expr());
-    }
+    const readArgumentsAndAppend = (additionalEndToken?: TokenType) => {
+      if (!this.current_token) throw new Error("Unexpected end of file.");
+      const endTokens = [];
 
-    while (this.current_token?.type === TokenType.COMMA) {
-      this.eat(TokenType.COMMA);
-      args.push(this.expr());
+      if (additionalEndToken) endTokens.push(additionalEndToken);
+      if (!shouldSkipParenthesis) endTokens.push(TokenType.RPAREN);
+
+      if (!endTokens.includes(this.current_token.type)) {
+        args.push(this.expr());
+      }
+
+      while (this.current_token?.type === TokenType.COMMA) {
+        this.eat(TokenType.COMMA);
+        args.push(this.expr());
+      }
+    };
+
+    readArgumentsAndAppend(TokenType.SEMI_COLON);
+
+    if (this.current_token?.type === TokenType.SEMI_COLON) {
+      this.eat(TokenType.SEMI_COLON);
+      readArgumentsAndAppend();
     }
 
     if (!shouldSkipParenthesis || (shouldSkipParenthesis && this.current_token?.type === TokenType.RPAREN))

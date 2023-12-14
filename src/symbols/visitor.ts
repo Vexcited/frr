@@ -2,7 +2,7 @@ import { AST, Assign, BinaryOperation, Compound, DoWhile, For, GlobalScope, If, 
 import { TypeOperationError, TypeOperationVariableError } from "../errors/math";
 import { UndeclaredVariableTypeError } from "../errors/variables";
 import { TokenType } from "../lexer/tokens";
-import { BuiltinTypeSymbol, ProcedureSymbol, VarSymbol } from "./builtins";
+import { ArgumentVarSymbol, BuiltinTypeSymbol, ProcedureSymbol, VarSymbol } from "./builtins";
 import ScopedSymbolTable from "./table";
 
 class SemanticAnalyzer {
@@ -105,7 +105,7 @@ class SemanticAnalyzer {
         throw new Error(`Type ${arg_type} not found.`);
       }
 
-      const var_symbol = new VarSymbol(arg_name, type_symbol);
+      const var_symbol = new ArgumentVarSymbol(arg_name, type_symbol, arg.method);
       this.current_scope.define(var_symbol);
       procedure_symbol.args.push(var_symbol);
     }

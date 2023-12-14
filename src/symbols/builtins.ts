@@ -19,6 +19,12 @@ export class VarSymbol extends BaseSymbol {
   }
 }
 
+export class ArgumentVarSymbol extends VarSymbol {
+  constructor (name: string, type: BuiltinTypeSymbol, public method: "copy" | "reference") {
+    super(name, type);
+  }
+}
+
 export class ProcedureSymbol extends BaseSymbol {
   /**
    * Compound from the Procedure AST node.
@@ -29,7 +35,7 @@ export class ProcedureSymbol extends BaseSymbol {
    */
   public compound_from_node?: Compound;
 
-  constructor (name: string, public args: VarSymbol[] = []) {
+  constructor (name: string, public args: ArgumentVarSymbol[] = []) {
     super(name);
   }
 }

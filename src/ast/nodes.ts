@@ -99,7 +99,7 @@ export class If {
 
 export class Procedure {
   public type = "Procedure";
-  public args: VariableDeclaration[] = [];
+  public args: ArgumentVariable[] = [];
 
   constructor (
     public name: string,
@@ -128,7 +128,6 @@ export class ArgumentVariable {
     public type_node: Type,
     public method: "copy" | "reference"
   ) {}
-
 }
 
 export class VariableDeclaration {

@@ -47,7 +47,8 @@ import {
   FromToken,
   ToToken,
   StepToken,
-  RepeatToken
+  RepeatToken,
+  SemiColonToken
 } from "./tokens";
 
 const RESERVED_KEYWORDS = {
@@ -374,6 +375,9 @@ export class Lexer {
         case ":":
           this.advance();
           return new ColonToken();
+        case ";":
+          this.advance();
+          return new SemiColonToken();
         case "+":
           this.advance();
           return new PlusToken();

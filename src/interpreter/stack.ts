@@ -3,19 +3,39 @@ export enum ActivationRecordType {
   PROCEDURE = "PROCEDURE"
 }
 
+export interface ActivationRecordEffect {
+  set: (value: unknown) => void,
+  get: () => unknown
+}
+
 export class ActivationRecord {
+  private effects = new Map<string, ActivationRecordEffect>();
   constructor (
     public name: string,
     public type: ActivationRecordType,
     public members: Map<string, unknown> = new Map()
   ) {}
 
-  public get (key: string) {
-    return this.members.get(key);
+  public get (key: string): unknown {
+    const effect = this.effects.get(key);
+
+    if (effect) return effect.get();
+    else return this.members.get(key);
   }
 
-  public set (key: string, value: unknown) {
-    this.members.set(key, value);
+  public set (key: string, value: unknown): void {
+    const effect = this.effects.get(key);
+
+    if (effect) effect.set(value);
+    else this.members.set(key, value);
+  }
+
+  /**
+   * Used to pass references to update a
+   * member in another activation record.
+   */
+  public defineEffect (key: string, effect: ActivationRecordEffect): void {
+    this.effects.set(key, effect);
   }
 }
 

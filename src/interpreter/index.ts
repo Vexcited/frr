@@ -104,6 +104,7 @@ class Interpreter {
       // will always set it.
       const procedureSymbol = node.symbol_from_syntax_analyzer!;
 
+      const current_ar = this.call_stack.peek();
       const ar = new ActivationRecord(
         procedureName,
         ActivationRecordType.PROCEDURE
@@ -118,6 +119,22 @@ class Interpreter {
       for (let arg_index = 0; arg_index < formal_args.length; arg_index++) {
         const arg_symbol = formal_args[arg_index];
         const arg_value = await this.visit(actual_args[arg_index]);
+        const arg = actual_args[arg_index];
+
+        // Handle `reference` variables.
+        if (arg instanceof Variable && arg_symbol.method === "reference") {
+          ar.defineEffect(arg_symbol.name, {
+            get() {
+              const variable_symbol = arg.symbol_from_syntax_analyzer!;
+              return current_ar.get(variable_symbol.name);
+            },
+            set(value) {
+              const variable_symbol = arg.symbol_from_syntax_analyzer!;
+              current_ar.set(variable_symbol.name, value);
+            }
+          });
+        }
+
         ar.set(arg_symbol.name, arg_value);
       }
 

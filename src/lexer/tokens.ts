@@ -42,6 +42,7 @@ export enum TokenType {
   END = "END",
 
   LINE_BREAK = "LINE_BREAK",
+  SEMI_COLON = "SEMI_COLON",
   COLON = "COLON",
   COMMA = "COMMA",
 
@@ -193,6 +194,12 @@ export class LParenToken extends BaseToken<string> {
 export class RParenToken extends BaseToken<string> {
   constructor () {
     super(TokenType.RPAREN, ")");
+  }
+}
+
+export class SemiColonToken extends BaseToken<string> {
+  constructor () {
+    super(TokenType.SEMI_COLON, ";");
   }
 }
 
