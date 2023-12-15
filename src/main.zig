@@ -6,6 +6,9 @@ const File = fs.File;
 const io = std.io;
 const process = std.process;
 
+const Chunk = @import("./chunk.zig").Chunk;
+const OpCode = @import("./opcode.zig").OpCode;
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
@@ -33,5 +36,8 @@ fn interpretFile(allocator: std.mem.Allocator, path: []const u8) !void {
     defer allocator.free(source);
     _ = try file.readAll(source);
 
-    std.debug.print("{s}", .{source});
+    var chunk = Chunk.init(allocator);
+    defer chunk.deinit();
+    try chunk.writeOp(OpCode.Return);
+    chunk.disassemble("test chunk");
 }
