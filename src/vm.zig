@@ -66,8 +66,8 @@ pub const VM = struct {
                     return InterpretResult.INTERPRET_OK;
                 },
                 OpCode.Negate => {
-                    const value = self.pop();
-                    self.push(-value);
+                    const value = self.stack.items[self.stack.items.len - 1];
+                    self.stack.items[self.stack.items.len - 1] = -value;
                 },
                 OpCode.Constant => {
                     // We read the constant index from the next byte.
