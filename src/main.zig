@@ -46,6 +46,7 @@ fn interpretFile(allocator: std.mem.Allocator, path: []const u8) !void {
     const constant2 = try chunk.addConstant(3.4);
     try chunk.writeOp(OpCode.Constant, 1);
     try chunk.write(constant2, 1);
+    try chunk.writeOp(OpCode.Negate, 1);
 
     try chunk.writeOp(OpCode.Return, 3);
 

@@ -64,6 +64,10 @@ pub const VM = struct {
 
                     return InterpretResult.INTERPRET_OK;
                 },
+                .Negate => {
+                    const value = self.pop();
+                    self.push(-value);
+                },
                 .Constant => {
                     // We read the constant index from the next byte.
                     const constant_index = self.chunk.code.items[self.ip];

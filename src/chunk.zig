@@ -61,6 +61,7 @@ pub const Chunk = struct {
         const instruction = @as(OpCode, @enumFromInt(self.code.items[offset]));
         return switch (instruction) {
             OpCode.Return => self.simpleInstruction("OP_RETURN", offset),
+            OpCode.Negate => self.simpleInstruction("OP_NEGATE", offset),
             OpCode.Constant => self.constantInstruction("OP_CONSTANT", offset),
         };
     }
