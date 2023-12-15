@@ -1,6 +1,7 @@
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 
+const Math = @import("./math.zig");
 const Value = @import("./value.zig").Value;
 const Chunk = @import("./chunk.zig").Chunk;
 const OpCode = @import("./opcode.zig").OpCode;
@@ -58,17 +59,17 @@ pub const VM = struct {
             self.ip += 1;
 
             switch (opcode) {
-                .Return => {
+                OpCode.Return => {
                     const last_value = self.pop();
-                    std.debug.print("return->pop => {d}\n", .{last_value});
+                    std.debug.print("\nValue at the end of the main program : {d}\n", .{last_value});
 
                     return InterpretResult.INTERPRET_OK;
                 },
-                .Negate => {
+                OpCode.Negate => {
                     const value = self.pop();
                     self.push(-value);
                 },
-                .Constant => {
+                OpCode.Constant => {
                     // We read the constant index from the next byte.
                     const constant_index = self.chunk.code.items[self.ip];
                     const constant = self.chunk.constants.items[constant_index];
@@ -77,6 +78,12 @@ pub const VM = struct {
 
                     self.stack.append(constant);
                 },
+
+                // Binary operators.
+                OpCode.Add => try self.binaryOperation(Math.add),
+                OpCode.Substract => try self.binaryOperation(Math.sub),
+                OpCode.Multiply => try self.binaryOperation(Math.mul),
+                OpCode.Divide => try self.binaryOperation(Math.div),
             }
         }
 
@@ -109,5 +116,12 @@ pub const VM = struct {
         }
 
         std.debug.print("\n", .{});
+    }
+
+    fn binaryOperation(self: *VM, comptime op: anytype) !void {
+        const rhs = self.pop();
+        const lhs = self.pop();
+
+        self.push(op(lhs, rhs));
     }
 };

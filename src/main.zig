@@ -40,15 +40,24 @@ fn interpretFile(allocator: std.mem.Allocator, path: []const u8) !void {
     var chunk = Chunk.init(allocator);
     defer chunk.deinit();
 
-    const constant1 = try chunk.addConstant(241);
+    const constant1 = try chunk.addConstant(1);
     try chunk.writeOp(OpCode.Constant, 1);
     try chunk.write(constant1, 1);
-    const constant2 = try chunk.addConstant(3.4);
+
+    const constant2 = try chunk.addConstant(3);
     try chunk.writeOp(OpCode.Constant, 1);
     try chunk.write(constant2, 1);
+
+    try chunk.writeOp(OpCode.Add, 1);
+
+    const constant3 = try chunk.addConstant(2);
+    try chunk.writeOp(OpCode.Constant, 1);
+    try chunk.write(constant3, 1);
+
+    try chunk.writeOp(OpCode.Divide, 1);
     try chunk.writeOp(OpCode.Negate, 1);
 
-    try chunk.writeOp(OpCode.Return, 3);
+    try chunk.writeOp(OpCode.Return, 2);
 
     var vm = VM.create();
     try vm.init(allocator);

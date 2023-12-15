@@ -63,6 +63,11 @@ pub const Chunk = struct {
             OpCode.Return => self.simpleInstruction("OP_RETURN", offset),
             OpCode.Negate => self.simpleInstruction("OP_NEGATE", offset),
             OpCode.Constant => self.constantInstruction("OP_CONSTANT", offset),
+
+            OpCode.Add => self.simpleInstruction("OP_ADD", offset),
+            OpCode.Substract => self.simpleInstruction("OP_SUBSTRACT", offset),
+            OpCode.Multiply => self.simpleInstruction("OP_MULTIPLY", offset),
+            OpCode.Divide => self.simpleInstruction("OP_DIVIDE", offset),
         };
     }
 
