@@ -8,6 +8,7 @@ const process = std.process;
 
 const Chunk = @import("./chunk.zig").Chunk;
 const OpCode = @import("./opcode.zig").OpCode;
+const VM = @import("./vm.zig").VM;
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -39,10 +40,18 @@ fn interpretFile(allocator: std.mem.Allocator, path: []const u8) !void {
     var chunk = Chunk.init(allocator);
     defer chunk.deinit();
 
-    const constant = try chunk.addConstant(234567898765432);
-    try chunk.writeOp(OpCode.Constant, 123);
-    try chunk.write(constant, 123);
+    const constant1 = try chunk.addConstant(241);
+    try chunk.writeOp(OpCode.Constant, 1);
+    try chunk.write(constant1, 1);
+    const constant2 = try chunk.addConstant(3.4);
+    try chunk.writeOp(OpCode.Constant, 1);
+    try chunk.write(constant2, 1);
 
-    try chunk.writeOp(OpCode.Return, 123);
-    chunk.disassemble("test chunk");
+    try chunk.writeOp(OpCode.Return, 3);
+
+    var vm = VM.create();
+    try vm.init(allocator);
+    defer vm.deinit();
+
+    _ = vm.interpret(&chunk);
 }
