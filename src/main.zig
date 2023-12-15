@@ -38,6 +38,11 @@ fn interpretFile(allocator: std.mem.Allocator, path: []const u8) !void {
 
     var chunk = Chunk.init(allocator);
     defer chunk.deinit();
-    try chunk.writeOp(OpCode.Return);
+
+    const constant = try chunk.addConstant(234567898765432);
+    try chunk.writeOp(OpCode.Constant, 123);
+    try chunk.write(constant, 123);
+
+    try chunk.writeOp(OpCode.Return, 123);
     chunk.disassemble("test chunk");
 }
