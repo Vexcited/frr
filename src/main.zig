@@ -37,31 +37,31 @@ fn interpretFile(allocator: std.mem.Allocator, path: []const u8) !void {
     defer allocator.free(source);
     _ = try file.readAll(source);
 
-    var chunk = Chunk.init(allocator);
-    defer chunk.deinit();
+    // var chunk = Chunk.init(allocator);
+    // defer chunk.deinit();
 
-    const constant1 = try chunk.addConstant(1);
-    try chunk.writeOp(OpCode.Constant, 1);
-    try chunk.write(constant1, 1);
+    // const constant1 = try chunk.addConstant(1);
+    // try chunk.writeOp(OpCode.Constant, 1);
+    // try chunk.write(constant1, 1);
 
-    const constant2 = try chunk.addConstant(3);
-    try chunk.writeOp(OpCode.Constant, 1);
-    try chunk.write(constant2, 1);
+    // const constant2 = try chunk.addConstant(3);
+    // try chunk.writeOp(OpCode.Constant, 1);
+    // try chunk.write(constant2, 1);
 
-    try chunk.writeOp(OpCode.Add, 1);
+    // try chunk.writeOp(OpCode.Add, 1);
 
-    const constant3 = try chunk.addConstant(2);
-    try chunk.writeOp(OpCode.Constant, 1);
-    try chunk.write(constant3, 1);
+    // const constant3 = try chunk.addConstant(2);
+    // try chunk.writeOp(OpCode.Constant, 1);
+    // try chunk.write(constant3, 1);
 
-    try chunk.writeOp(OpCode.Divide, 1);
-    try chunk.writeOp(OpCode.Negate, 1);
+    // try chunk.writeOp(OpCode.Divide, 1);
+    // try chunk.writeOp(OpCode.Negate, 1);
 
-    try chunk.writeOp(OpCode.Return, 2);
+    // try chunk.writeOp(OpCode.Return, 2);
 
     var vm = VM.create();
     try vm.init(allocator);
     defer vm.deinit();
 
-    _ = vm.interpret(&chunk);
+    _ = vm.interpret(source);
 }

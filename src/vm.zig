@@ -2,6 +2,8 @@ const std = @import("std");
 const Allocator = std.mem.Allocator;
 
 const Math = @import("./math.zig");
+const Compiler = @import("./compiler.zig");
+
 const Value = @import("./value.zig").Value;
 const Chunk = @import("./chunk.zig").Chunk;
 const OpCode = @import("./opcode.zig").OpCode;
@@ -39,11 +41,17 @@ pub const VM = struct {
         self.stack.deinit();
     }
 
-    pub fn interpret(self: *VM, chunk: *Chunk) InterpretResult {
-        self.chunk = chunk.*;
-        self.ip = 0;
+    // pub fn interpret(self: *VM, chunk: *Chunk) InterpretResult {
+    pub fn interpret(self: *VM, code: []const u8) InterpretResult {
+        _ = self;
+        Compiler.compile(code);
 
-        return self.run();
+        return InterpretResult.INTERPRET_OK;
+
+        // self.chunk = chunk.*;
+        // self.ip = 0;
+
+        // return self.run();
     }
 
     fn run(self: *VM) InterpretResult {
