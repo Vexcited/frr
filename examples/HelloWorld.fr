@@ -1,4 +1,1 @@
-programme HelloWorld
-début
-  afficher "Coucou !"
-fin HelloWorld
+<-<=>=><! !=

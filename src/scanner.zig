@@ -63,6 +63,9 @@ pub const Scanner = struct {
             '/' => self.makeToken(TokenType.SLASH),
             '*' => self.makeToken(TokenType.STAR),
 
+            // Handle comments.
+            '#' => {},
+
             '!' => self.makeToken(if (self.match('=')) TokenType.BANG_EQUAL else TokenType.BANG),
             '<' => self.makeToken(if (self.match('=')) TokenType.LESS_EQUAL else if (self.match('-')) TokenType.ASSIGN else TokenType.LESS),
             '>' => self.makeToken(if (self.match('=')) TokenType.GREATER_EQUAL else TokenType.GREATER),
@@ -80,7 +83,7 @@ pub const Scanner = struct {
 
     fn match(self: *Scanner, char: u8) bool {
         if (self.isAtEnd()) return false;
-        if (self.start[self.current] != char) return false;
+        if (self.peek() != char) return false;
 
         self.current += 1;
         return true;
@@ -98,5 +101,29 @@ pub const Scanner = struct {
             .lexeme = self.start[0..self.current],
             .line = self.line,
         };
+    }
+
+    fn peek(self: *Scanner) u8 {
+        return self.start[self.current];
+    }
+
+    fn peekNext(self: *Scanner) u8 {
+        if (self.isAtEnd()) return 0;
+        return self.start[self.current + 1];
+    }
+
+    fn skipWhitespaces(self: *Scanner) void {
+        while (true) {
+            const char = self.peek();
+            switch (char) {
+                ' ', '\r', '\t' => self.advance(),
+                '\n' => {
+                    self.line += 1;
+                    self.advance();
+                },
+
+                else => return,
+            }
+        }
     }
 };
