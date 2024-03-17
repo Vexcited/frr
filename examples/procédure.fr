@@ -1,0 +1,27 @@
+procédure world(; ch: chaîne)
+début
+  ch <- ch + " Et là c'est dans 'world()', eh oui !"
+fin world
+
+procédure hello(nb: entier ; ch: chaîne)
+début
+  afficher "Un nombre (passé en argument):", nb, "\n"
+
+  nb <- 42
+  afficher "Un nombre (modifié dans procédure):", nb, "\n"
+
+  ch <- "Modifié depuis la procédure 'hello()' !"
+  world(; ch)
+fin hello
+
+programme World
+début
+  avec mon_nombre : entier
+       une_chaîne : chaîne
+  
+  mon_nombre <- 10
+  hello(mon_nombre ; une_chaîne)
+
+  afficher "Un nombre (non changé dans programme principal, car copie):", mon_nombre, "\n"
+  afficher "Une chaîne :", une_chaîne, "\n"
+fin World

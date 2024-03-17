@@ -1,0 +1,16 @@
+programme Variables
+début
+  avec ma_variable, a : entier
+
+  ma_variable <- 0
+  a <- ma_variable + 2
+
+  afficher a
+  afficher "\n"
+
+  afficher "a = "
+  saisir a
+
+  afficher a
+  afficher "\n"
+fin Variables

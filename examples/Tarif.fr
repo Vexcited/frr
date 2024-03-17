@@ -1,0 +1,26 @@
+# Le calcul d'un tarif réduit selon l'âge :
+#   0-18 ans -> Tarif -50% ;
+#   19-27 ans -> Tarif -20% ;
+#   Plus de 28 ans -> Plein tarif 
+
+programme Tarif
+début 
+  avec
+    age  : entier 
+    prix : réel 
+
+  afficher "Saisir votre age : "
+  saisir age
+  afficher "Saisir le prix : "
+  saisir prix
+
+  si age <= 18 alors 
+    prix <- prix * 0.5 
+  sinon 
+    si age <= 27 alors  
+      prix <- prix * 0.8
+    fin si 
+  fin si 
+
+  afficher "\nLe prix que vous devez payer :", prix, "\n"
+fin Tarif

@@ -1,0 +1,10 @@
+programme Conditions
+début
+  avec ma_condition : booléen
+
+  ma_condition <- vrai
+
+  si ma_condition alors
+    afficher "c'est vrai !\n"
+  fin si
+fin Conditions

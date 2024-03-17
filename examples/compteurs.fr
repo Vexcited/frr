@@ -1,0 +1,20 @@
+programme Compteurs
+début
+  avec i : entier
+  pour i de 0 à 10 faire
+    afficher i, "\n"
+  fin faire
+
+  afficher "---\n"
+
+  pour i de 0 à 10 pas 2 faire
+    i <- 9 # Is ignored !
+    afficher i, "\n"
+  fin faire
+
+  afficher "---\n"
+
+  pour i de 10 à 0 pas -2.5 faire
+    afficher i, "\n"
+  fin faire
+fin Compteurs

@@ -1,0 +1,17 @@
+fonction FaireFibonacci (n : entier) retourne entier
+début
+  si (n < 2) alors retourne n
+  sinon retourne FaireFibonacci(n - 1) + FaireFibonacci(n - 2)
+  fin si
+fin FaireFibonacci
+
+programme Fibonacci
+début
+  avec n, res : entier
+  
+  afficher "n = "
+  saisir n
+
+  res <- FaireFibonacci(n)
+  afficher "Résultat:", res, "\n"
+fin Fibonacci

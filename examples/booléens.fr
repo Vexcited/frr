@@ -1,0 +1,7 @@
+programme Conditions
+début
+  avec ma_condition : booléen
+
+  ma_condition <- vrai = vrai
+  afficher ((non ma_condition) - '\n')
+fin Conditions

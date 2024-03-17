@@ -1,0 +1,21 @@
+programme ExempleCaractères
+début
+  avec mon_char: caractère
+       rl: chaîne
+
+  # `rl` est juste un retour à la ligne.
+  # Seulement pour montrer que ça fonctionne.
+  rl       <- "\n"
+  mon_char <- 'a'
+
+  # On peut afficher les caractères
+  # et effectuer des concatenations "chaîne + car".
+  afficher "mon_char = " + mon_char + rl
+
+  # Les caractères sont considérés comme des nombres,
+  # donc toutes les opérations sont possible sur eux.
+  afficher "mon_char + 1 = " + (mon_char + 1) + rl
+
+  # On peut ainsi additionner deux caractères, par exemple.
+  afficher "'z' - ' ' = " + ('z' - ' ') + rl
+fin ExempleCaractères

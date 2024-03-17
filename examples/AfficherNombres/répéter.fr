@@ -1,0 +1,14 @@
+# do while
+programme AfficherNombres
+début
+  avec n, i : entier
+
+  afficher "n = "
+  saisir n
+
+  i <- 1
+  répéter
+    afficher i, "\n"
+    i <- i + 1
+  tant que i <= n
+fin AfficherNombres
