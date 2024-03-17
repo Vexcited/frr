@@ -3,7 +3,7 @@
 ## Development
 
 `frr` is made using the [Zig](https://ziglang.org/) programming language.
-The version of Zig used in this project is `0.12.0-dev.1664+8ca4a5240`.
+The version of Zig used in this project is `0.12.0-dev.2858+7230b68b3`.
 
 ```bash
 # Used to run the `HelloWorld.fr` script.
