@@ -46,6 +46,8 @@ pub const Scanner = struct {
     }
 
     pub fn scanToken(self: *Scanner) Token {
+        self.skipWhitespaces();
+
         self.start = self.start[self.current..];
         self.current = 0;
 
@@ -62,9 +64,6 @@ pub const Scanner = struct {
             '+' => self.makeToken(TokenType.PLUS),
             '/' => self.makeToken(TokenType.SLASH),
             '*' => self.makeToken(TokenType.STAR),
-
-            // Handle comments.
-            '#' => {},
 
             '!' => self.makeToken(if (self.match('=')) TokenType.BANG_EQUAL else TokenType.BANG),
             '<' => self.makeToken(if (self.match('=')) TokenType.LESS_EQUAL else if (self.match('-')) TokenType.ASSIGN else TokenType.LESS),
@@ -114,12 +113,17 @@ pub const Scanner = struct {
 
     fn skipWhitespaces(self: *Scanner) void {
         while (true) {
+            // Prevent going out of bounds.
+            if (self.isAtEnd()) return;
+
             const char = self.peek();
             switch (char) {
-                ' ', '\r', '\t' => self.advance(),
+                ' ', '\r', '\t' => {
+                    _ = self.advance();
+                },
                 '\n' => {
                     self.line += 1;
-                    self.advance();
+                    _ = self.advance();
                 },
 
                 else => return,

@@ -6,7 +6,7 @@ pub fn compile(code: []const u8) void {
     var token = scanner.scanToken();
 
     while (token.type != Scanner.TokenType.EOF) {
-        std.debug.print("{s} {d}\n", .{ token.lexeme, token.line });
+        std.debug.print("token: {s} at line {d}\n", .{ token.lexeme, token.line });
         token = scanner.scanToken();
     }
 }
