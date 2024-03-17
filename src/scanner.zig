@@ -21,6 +21,8 @@ pub const TokenType = enum {
     GREATER_EQUAL, // >=
     ASSIGN, // <-
 
+    STRING, // Content is between double quotes.
+
     // Others.
     ERROR,
     EOF,
@@ -65,9 +67,22 @@ pub const Scanner = struct {
             '/' => self.makeToken(TokenType.SLASH),
             '*' => self.makeToken(TokenType.STAR),
 
+            // To handle comments, we just skip until we encounter a newline.
+            // When this happens, make a new scan.
+            '#' => {
+                while (self.peek() != '\n' and !self.isAtEnd()) {
+                    _ = self.advance();
+                }
+
+                return self.scanToken();
+            },
+
             '!' => self.makeToken(if (self.match('=')) TokenType.BANG_EQUAL else TokenType.BANG),
             '<' => self.makeToken(if (self.match('=')) TokenType.LESS_EQUAL else if (self.match('-')) TokenType.ASSIGN else TokenType.LESS),
             '>' => self.makeToken(if (self.match('=')) TokenType.GREATER_EQUAL else TokenType.GREATER),
+            '=' => self.makeToken(.EQUAL),
+
+            '"' => self.string(),
 
             else => self.makeToken(TokenType.ERROR),
         };
@@ -129,5 +144,22 @@ pub const Scanner = struct {
                 else => return,
             }
         }
+    }
+
+    fn string(self: *Scanner) Token {
+        while (!self.isAtEnd() and self.peek() != '"') {
+            if (self.peek() == '\n') self.line += 1;
+            _ = self.advance();
+        }
+
+        // Unterminated string
+        if (self.isAtEnd()) {
+            std.debug.print("uhhh??", .{});
+            return self.makeToken(.ERROR);
+        }
+
+        // Skip the closing quote.
+        _ = self.advance();
+        return self.makeToken(.STRING);
     }
 };
